@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.context.Flag;
-//import org.infinispan.context.Flag;
 import org.savara.common.config.Configuration;
 import org.savara.monitor.ConversationId;
 import org.savara.monitor.SessionStore;
@@ -33,22 +32,13 @@ public class CachedSessionStore implements SessionStore {
 
 	private static final Logger LOG=Logger.getLogger(CachedSessionStore.class.getName());
 
-	//private AdvancedCache<ProtocolConversationKey,Serializable> _cache=null;
-	private static java.util.concurrent.ConcurrentMap<ProtocolConversationKey,Serializable> _cache=
-			new java.util.concurrent.ConcurrentHashMap<CachedSessionStore.ProtocolConversationKey, Serializable>();
+	private AdvancedCache<ProtocolConversationKey,Serializable> _cache=null;
 
 	public CachedSessionStore(org.infinispan.manager.CacheContainer cc) {
-		/*
 		org.infinispan.Cache<ProtocolConversationKey,Serializable> cache=cc.getCache("conversationSessions");
 
-		// TODO: See if possible to get a 'lockIfAvailable' with boolean result - so instead of
-		// failing and setting the cache in an inconsistent state, it retains valid transaction
-		// but app could can decide how to deal with the issue
 		_cache = cache.getAdvancedCache()
-				.withFlags(Flag.SKIP_LOCKING);	// To ignore lock
-		//.withFlags(Flag.FAIL_SILENTLY);	// To ignore lock failures
-		 * 
-		 */
+				.withFlags(Flag.FAIL_SILENTLY, Flag.ZERO_LOCK_ACQUISITION_TIMEOUT);
 	}
 	
 	public Serializable create(ProtocolId pid, ConversationId cid,
@@ -109,9 +99,12 @@ public class CachedSessionStore implements SessionStore {
 			LOG.finest("Update session for pid="+pid+" cid="+cid+" value="+value);			
 		}
 			
-		//_cache.lock(key);
-		
-		_cache.replace(key, value);
+		if (_cache.lock(key)) {
+			_cache.replace(key, value);
+		} else {
+			LOG.info("GPB: Unable to acquire lock for: "+key);
+			throw new RuntimeException("RETRY DUE TO NOT ACQUIRING LOCK");
+		}
 		
 		if (LOG.isLoggable(Level.FINEST)) {
 			LOG.finest("Updated session for pid="+pid+" cid="+cid+" value="+value);			

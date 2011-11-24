@@ -17,21 +17,17 @@
  */
 package org.savara.sam.ams.conversations;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jms.Destination;
 import javax.jms.MessageListener;
 
-//import org.infinispan.context.Flag;
 import org.infinispan.context.Flag;
 import org.savara.monitor.ConversationId;
 import org.savara.monitor.Message;
 import org.savara.monitor.MonitorResult;
-import org.savara.protocol.ProtocolCriteria;
 import org.savara.protocol.ProtocolCriteria.Direction;
-import org.savara.protocol.ProtocolId;
 import org.savara.protocol.repository.ProtocolRepository;
 import org.savara.sam.activity.ActivityModel.Activity;
 import org.savara.sam.activity.ConversationDetails;
@@ -45,11 +41,6 @@ import org.savara.sam.aq.ActiveQuery;
 import org.savara.sam.aqs.ActiveQueryServer;
 import org.savara.sam.aqs.JEEActiveQueryManager;
 import org.savara.sam.aqs.JEECacheActiveQuerySpec;
-import org.scribble.common.resource.ResourceContent;
-import org.scribble.protocol.DefaultProtocolContext;
-import org.scribble.protocol.ProtocolContext;
-import org.scribble.protocol.model.ProtocolModel;
-import org.scribble.protocol.model.Role;
 
 public abstract class ConversationManager extends JEEActiveQueryManager<String,ConversationId> implements MessageListener {
 	
@@ -57,13 +48,10 @@ public abstract class ConversationManager extends JEEActiveQueryManager<String,C
 	
 	private org.savara.monitor.Monitor _monitor=null;
 	private org.infinispan.Cache<String,Activity> _activities=null;
-	//private org.infinispan.AdvancedCache<ConversationId,ConversationDetails> _conversationDetails=null;
+	private org.infinispan.AdvancedCache<ConversationId,ConversationDetails> _conversationDetails=null;
 	private org.infinispan.manager.CacheContainer _container=null;
 	private ActiveQuery<Situation> _situations=null;
 	
-	private static java.util.concurrent.ConcurrentMap<ConversationId,ConversationDetails> _conversationDetails=
-					new java.util.concurrent.ConcurrentHashMap<ConversationId,ConversationDetails>();
-
 	private XPathConversationResolver _resolver=new XPathConversationResolver();
 	
 	public ConversationManager(String conversationName) {
@@ -87,17 +75,11 @@ public abstract class ConversationManager extends JEEActiveQueryManager<String,C
 		
 		_activities = _container.getCache("activities");
 		
-		/*
 		org.infinispan.Cache<ConversationId,ConversationDetails> conversationDetails=
 							_container.getCache("conversationDetails");
 		
-		// TODO: See if possible to get a 'lockIfAvailable' with boolean result - so instead of
-		// failing and setting the cache in an inconsistent state, it retains valid transaction
-		// but app could can decide how to deal with the issue
 		_conversationDetails = conversationDetails.getAdvancedCache()
-				.withFlags(Flag.SKIP_LOCKING);	// To ignore lock
-				//.withFlags(Flag.FAIL_SILENTLY);	// To ignore lock failures
-		*/
+				.withFlags(Flag.FAIL_SILENTLY, Flag.ZERO_LOCK_ACQUISITION_TIMEOUT);
 		
 		((JEECacheActiveQuerySpec<ConversationId,ConversationDetails>)getActiveQuerySpec()).setCache(_conversationDetails);
 		
@@ -201,9 +183,17 @@ public abstract class ConversationManager extends JEEActiveQueryManager<String,C
 								result.getConversationId()+" : added activity "+act);
 				}
 				
-				//_conversationDetails.lock(result.getConversationId());
-				
-				_conversationDetails.replace(result.getConversationId(), details);
+				try {
+					if (_conversationDetails.lock(result.getConversationId())) {
+						_conversationDetails.replace(result.getConversationId(), details);
+					} else {
+						LOG.info("GPB: Unable to acquire lock for: "+result.getConversationId());
+						throw new RuntimeException("RETRY DUE TO NOT ACQUIRING LOCK");
+					}
+				} catch(org.infinispan.util.concurrent.TimeoutException te) {
+					LOG.info("GPB: Lock timed out: Unable to acquire lock for: "+result.getConversationId());
+					throw new RuntimeException("Lock timed out: RETRY DUE TO NOT ACQUIRING LOCK");
+				}
 				
 				ret = result.getConversationId();
 				
