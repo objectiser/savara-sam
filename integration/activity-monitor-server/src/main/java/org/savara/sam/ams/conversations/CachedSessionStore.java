@@ -23,6 +23,11 @@ import java.util.logging.Logger;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.context.Flag;
+import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.transaction.LockingMode;
+import org.infinispan.transaction.lookup.GenericTransactionManagerLookup;
+import org.infinispan.util.concurrent.IsolationLevel;
 import org.savara.common.config.Configuration;
 import org.savara.monitor.ConversationId;
 import org.savara.monitor.SessionStore;
@@ -32,13 +37,32 @@ public class CachedSessionStore implements SessionStore {
 
 	private static final Logger LOG=Logger.getLogger(CachedSessionStore.class.getName());
 
-	private AdvancedCache<ProtocolConversationKey,Serializable> _cache=null;
+	private static AdvancedCache<ProtocolConversationKey,Serializable> _cache=null;
 
 	public CachedSessionStore(org.infinispan.manager.CacheContainer cc) {
-		org.infinispan.Cache<ProtocolConversationKey,Serializable> cache=cc.getCache("conversationSessions");
-
-		_cache = cache.getAdvancedCache()
-				.withFlags(Flag.FAIL_SILENTLY, Flag.ZERO_LOCK_ACQUISITION_TIMEOUT);
+		
+		if (_cache == null) {
+			EmbeddedCacheManager manager = new DefaultCacheManager(); //"infinispan-config-file.xml");
+	
+			org.infinispan.config.Configuration config = manager.getDefaultConfiguration().clone().fluent()
+					  .locking()
+					    .concurrencyLevel(10000).isolationLevel(IsolationLevel.REPEATABLE_READ)
+					    .lockAcquisitionTimeout(12000L).useLockStriping(false).writeSkewCheck(true)
+					  .transaction()
+					    .lockingMode(LockingMode.PESSIMISTIC)
+					    .recovery()
+					    .transactionManagerLookup(new GenericTransactionManagerLookup())
+					  .build();
+			
+			String newCacheName = "conversationSessions";
+			manager.defineConfiguration(newCacheName, config);
+			
+			org.infinispan.Cache<ProtocolConversationKey,Serializable> cache=manager.getCache(newCacheName);
+			//org.infinispan.Cache<ProtocolConversationKey,Serializable> cache=cc.getCache("conversationSessions");
+	
+			_cache = cache.getAdvancedCache()
+					.withFlags(Flag.FAIL_SILENTLY, Flag.ZERO_LOCK_ACQUISITION_TIMEOUT);
+		}
 	}
 	
 	public Serializable create(ProtocolId pid, ConversationId cid,

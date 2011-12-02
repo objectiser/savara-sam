@@ -23,7 +23,13 @@ import java.util.logging.Logger;
 import javax.jms.Destination;
 import javax.jms.MessageListener;
 
+import org.infinispan.config.Configuration;
 import org.infinispan.context.Flag;
+import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.transaction.LockingMode;
+import org.infinispan.transaction.lookup.GenericTransactionManagerLookup;
+import org.infinispan.util.concurrent.IsolationLevel;
 import org.savara.monitor.ConversationId;
 import org.savara.monitor.Message;
 import org.savara.monitor.MonitorResult;
@@ -48,7 +54,7 @@ public abstract class ConversationManager extends JEEActiveQueryManager<String,C
 	
 	private org.savara.monitor.Monitor _monitor=null;
 	private org.infinispan.Cache<String,Activity> _activities=null;
-	private org.infinispan.AdvancedCache<ConversationId,ConversationDetails> _conversationDetails=null;
+	private static org.infinispan.AdvancedCache<ConversationId,ConversationDetails> _conversationDetails=null;
 	private org.infinispan.manager.CacheContainer _container=null;
 	private ActiveQuery<Situation> _situations=null;
 	
@@ -75,11 +81,29 @@ public abstract class ConversationManager extends JEEActiveQueryManager<String,C
 		
 		_activities = _container.getCache("activities");
 		
-		org.infinispan.Cache<ConversationId,ConversationDetails> conversationDetails=
-							_container.getCache("conversationDetails");
-		
-		_conversationDetails = conversationDetails.getAdvancedCache()
-				.withFlags(Flag.FAIL_SILENTLY, Flag.ZERO_LOCK_ACQUISITION_TIMEOUT);
+		EmbeddedCacheManager manager = new DefaultCacheManager(); //"infinispan-config-file.xml");
+
+		if (_conversationDetails == null) {
+			Configuration config = manager.getDefaultConfiguration().clone().fluent()
+					  .locking()
+					    .concurrencyLevel(10000).isolationLevel(IsolationLevel.REPEATABLE_READ)
+					    .lockAcquisitionTimeout(12000L).useLockStriping(false).writeSkewCheck(true)
+					  .transaction()
+					    .lockingMode(LockingMode.PESSIMISTIC)
+					    .recovery()
+					    .transactionManagerLookup(new GenericTransactionManagerLookup())
+					  .build();
+			
+			String newCacheName = "conversationDetails";
+			manager.defineConfiguration(newCacheName, config);
+			
+			org.infinispan.Cache<ConversationId,ConversationDetails> conversationDetails=
+					manager.getCache("conversationDetails");
+					//_container.getCache("conversationDetails");
+			
+			_conversationDetails = conversationDetails.getAdvancedCache()
+					.withFlags(Flag.FAIL_SILENTLY, Flag.ZERO_LOCK_ACQUISITION_TIMEOUT);
+		}
 		
 		((JEECacheActiveQuerySpec<ConversationId,ConversationDetails>)getActiveQuerySpec()).setCache(_conversationDetails);
 		
