@@ -51,9 +51,12 @@
 
 	<properties>
 		<sam.version>1.0.0-SNAPSHOT</sam.version>
+		<jackson.version>1.6.3</jackson.version>
+		<junit.version>4.4</junit.version>
 	</properties>
 
 	<modules>
+		<module>modules</module>
 	</modules>
 
 	<build>
