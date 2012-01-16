@@ -23,51 +23,38 @@ package org.savara.sam.epn;
  * results to other awaiting event processors.
  *
  */
-public interface EventProcessor<S,T> {
+public abstract class AbstractEventProcessor<S,T> implements EventProcessor<S,T> {
+    
+    private String _name=null;
     
     /**
-     * This is the unique name of the Event Processor.
-     * 
-     * @return The name
+     * {@inheritDoc}
      */
-    public String getName();
+    public String getName() {
+        return (_name);
+    }
 
     /**
-     * This method sets the unique name of the Event Processor.
-     * 
-     * @param name The name
+     * {@inheritDoc}
      */
-    public void setName(String name);
+    public void setName(String name) {
+        _name = name;
+    }
 
     /**
      * This method initializes the event processor.
      * 
      * @throws Exception Failed to initialize
      */
-    public void init() throws Exception;
-    
-    /**
-     * This method processes the supplied event, and optionally
-     * returns a transformed representation to be forwarded to
-     * other processors. If the event cannot be processed at
-     * this time, then an exception should be thrown to initiate
-     * a retry. The number of remaining retries is supplied,
-     * to enable the processor to take appropriate error
-     * reporting action.
-     * 
-     * @param source The source event processor name that generated the event
-     * @param event The event to process
-     * @param retriesLeft The number of retries left
-     * @return The optional transformed representation of the event
-     * @throws Exception Failed to process event, requesting retry
-     */
-    public T process(String source, S event, int retriesLeft) throws Exception;
+    public void init() throws Exception {
+    }
     
     /**
      * This method closes the event processor.
      * 
      * @throws Exception Failed to close
      */
-    public void close() throws Exception;
-    
+    public void close() throws Exception {
+    }
+
 }

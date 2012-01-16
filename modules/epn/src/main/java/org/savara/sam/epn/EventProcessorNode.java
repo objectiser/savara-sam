@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  */
 public class EventProcessorNode<S,T> {
 
-    private Logger LOGGER=Logger.getLogger(EventProcessorNode.class.getName());
+    private static Logger LOG=Logger.getLogger(EventProcessorNode.class.getName());
     
     private EventProcessor<S,T> _eventProcessor=null;
     private java.util.List<EventDestination<T>> _destinations=null;
@@ -60,12 +60,13 @@ public class EventProcessorNode<S,T> {
      * which transformed events should be forwarded, and which need
      * to be returned to be retried.
      * 
+     * @param source The source event processor node that generated the event
      * @param events The list of events to be processed
      * @param retriesLeft The number of remaining retries
      * @return The list of events to retry, or null if no retries required
      * @throws Exception Failed to process events, and should result in transaction rollback
      */
-    public java.util.List<S> process(java.util.List<S> events, int retriesLeft)
+    public java.util.List<S> process(String source, java.util.List<S> events, int retriesLeft)
                             throws Exception {
         java.util.List<S> ret=null;
         java.util.List<T> results=new java.util.Vector<T>();
@@ -73,15 +74,15 @@ public class EventProcessorNode<S,T> {
         for (S event : events) {
             
             try {
-                T processed=getEventProcessor().process(event, retriesLeft);
+                T processed=getEventProcessor().process(source, event, retriesLeft);
                 
                 if (processed != null) {
                     results.add(processed);
                 }
                 
             } catch(Exception e) {
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine("Retry event: "+event);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Retry event: "+event);
                 }
                 if (ret == null) {
                     ret = new java.util.Vector<S>();
