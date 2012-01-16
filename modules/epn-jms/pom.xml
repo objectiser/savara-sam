@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.savara.sam.modules</groupId>
+	<artifactId>sam-epn-jms</artifactId> 
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>Savara SAM::Modules::Event-Processor-Network-JMS</name>
+
+	<parent>
+		<groupId>org.savara.sam</groupId>
+		<artifactId>modules</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<properties>
+	</properties>
+  
+	<dependencies>
+		<dependency>
+			<groupId>org.savara.sam.modules</groupId>
+			<artifactId>sam-epn</artifactId>
+			<version>${sam.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.savara.sam.modules</groupId>
+			<artifactId>sam-activity-model</artifactId>
+			<version>${sam.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.jboss.javaee</groupId>
+		    <artifactId>jboss-jms-api</artifactId>
+		    <version>1.1.0.GA</version>
+		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>javax.ejb</groupId>
+		    <artifactId>ejb-api</artifactId>
+		    <version>3.0</version>
+		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.jboss.ejb3</groupId>
+		    <artifactId>jboss-ejb3-ext-api</artifactId>
+		    <version>1.1.0</version>
+		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>javax.enterprise</groupId>
+		    <artifactId>cdi-api</artifactId>
+		    <version>1.0</version>
+		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+           		<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

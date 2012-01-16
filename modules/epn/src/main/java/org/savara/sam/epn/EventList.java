@@ -18,19 +18,12 @@
 package org.savara.sam.epn;
 
 /**
- * This interface represents a destination for sending a
- * list of events.
+ * This class represents a list of events that can be serialized.
  *
+ * @param <T> The event type
  */
-public interface EventDestination {
+public class EventList<T extends java.io.Serializable> extends java.util.Vector<T> {
 
-    /**
-     * This method sends the supplied events to a destination.
-     * 
-     * @param source The source event processor
-     * @param events The events
-     * @throws Exception Failed to send the events
-     */
-    public void send(String source, EventList<?> events) throws Exception;
+    private static final long serialVersionUID = -2940973962085558684L;
 
 }

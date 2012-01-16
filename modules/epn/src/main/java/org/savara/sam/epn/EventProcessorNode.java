@@ -28,13 +28,15 @@ import com.google.common.base.Predicate;
  * @param <S> The source event type
  * @param <T> The target event type
  */
-public class EventProcessorNode<S,T> {
+public class EventProcessorNode<S extends java.io.Serializable,T extends java.io.Serializable> {
 
     private static Logger LOG=Logger.getLogger(EventProcessorNode.class.getName());
     
+    public static final String EPN_NAME="EPNName";
+    
     private EventProcessor<S,T> _eventProcessor=null;
     private Predicate<S> _predicate=null;
-    private java.util.List<EventDestination<T>> _destinations=null;
+    private java.util.List<EventDestination> _destinations=new java.util.Vector<EventDestination>();
     
     /**
      * The constructor for the event processor node.
@@ -44,9 +46,18 @@ public class EventProcessorNode<S,T> {
      * @param destinations The list of destinations to send transformed events
      */
     public EventProcessorNode(EventProcessor<S,T> ep, Predicate<S> predicate,
-                java.util.List<EventDestination<T>> destinations) {
+                java.util.List<EventDestination> destinations) {
         _eventProcessor = ep;
         _predicate = predicate;
+        _destinations = destinations;
+    }
+    
+    /**
+     * This method initializes the event processor node.
+     * 
+     * @param destinations The target destinations
+     */
+    public void init(java.util.List<EventDestination> destinations) {
         _destinations = destinations;
     }
     
@@ -78,13 +89,13 @@ public class EventProcessorNode<S,T> {
      * @param source The source event processor node that generated the event
      * @param events The list of events to be processed
      * @param retriesLeft The number of remaining retries
-     * @return The list of events to retry, or null if no retries required
+     * @return The list of events to retry, or null if no retries necessary
      * @throws Exception Failed to process events, and should result in transaction rollback
      */
-    public java.util.List<S> process(String source, java.util.List<S> events, int retriesLeft)
+    public EventList<S> process(String source, EventList<S> events, int retriesLeft)
                             throws Exception {
-        java.util.List<S> ret=null;
-        java.util.List<T> results=new java.util.Vector<T>();
+        EventList<S> retries=null;
+        EventList<T> results=new EventList<T>();
         
         for (S event : events) {
             
@@ -100,10 +111,10 @@ public class EventProcessorNode<S,T> {
                     if (LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Retry event: "+event);
                     }
-                    if (ret == null) {
-                        ret = new java.util.Vector<S>();
+                    if (retries == null) {
+                        retries = new EventList<S>();
                     }
-                    ret.add(event);
+                    retries.add(event);
                 }
             }
         }
@@ -112,7 +123,7 @@ public class EventProcessorNode<S,T> {
             forward(results);
         }
         
-        return (ret);
+        return (retries);
     }
     
     /**
@@ -122,10 +133,10 @@ public class EventProcessorNode<S,T> {
      * @param results The results
      * @throws Exception Failed to forward results
      */
-    protected void forward(java.util.List<T> results) throws Exception {
+    protected void forward(EventList<T> results) throws Exception {
         
-        for (EventDestination<T> dest : _destinations) {
-            dest.send(results);
+        for (EventDestination dest : _destinations) {
+            dest.send(_eventProcessor.getName(), results);
         }
     }
 }

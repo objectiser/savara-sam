@@ -24,6 +24,7 @@
 		<module>collector-jms</module>
 		<module>epn</module>
 		<module>epn-cep</module>
+		<module>epn-jms</module>
 	</modules>
 
 <!-- Not currently needed unless making the modules OSGi bundles? 
