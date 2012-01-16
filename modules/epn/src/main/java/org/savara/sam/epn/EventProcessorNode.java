@@ -20,6 +20,8 @@ package org.savara.sam.epn;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.base.Predicate;
+
 /**
  * This class represents a node in the Event Processor Network.
  *
@@ -31,17 +33,20 @@ public class EventProcessorNode<S,T> {
     private static Logger LOG=Logger.getLogger(EventProcessorNode.class.getName());
     
     private EventProcessor<S,T> _eventProcessor=null;
+    private Predicate<S> _predicate=null;
     private java.util.List<EventDestination<T>> _destinations=null;
     
     /**
      * The constructor for the event processor node.
      * 
      * @param ep The event processor associated with the node
+     * @param predicate The optional predicate to filter the source events
      * @param destinations The list of destinations to send transformed events
      */
-    public EventProcessorNode(EventProcessor<S,T> ep,
+    public EventProcessorNode(EventProcessor<S,T> ep, Predicate<S> predicate,
                 java.util.List<EventDestination<T>> destinations) {
         _eventProcessor = ep;
+        _predicate = predicate;
         _destinations = destinations;
     }
     
@@ -50,8 +55,18 @@ public class EventProcessorNode<S,T> {
      * 
      * @return The event processor
      */
-    protected EventProcessor<S,T> getEventProcessor() {
+    public EventProcessor<S,T> getEventProcessor() {
         return (_eventProcessor);
+    }
+    
+    /**
+     * This method returns the optional predicate that can be used
+     * to filter the source events that should be processed.
+     * 
+     * @return The optional predicate
+     */
+    public Predicate<S> getPredicate() {
+        return (_predicate);
     }
     
     /**
@@ -73,21 +88,23 @@ public class EventProcessorNode<S,T> {
         
         for (S event : events) {
             
-            try {
-                T processed=getEventProcessor().process(source, event, retriesLeft);
-                
-                if (processed != null) {
-                    results.add(processed);
+            if (getPredicate() == null || getPredicate().apply(event)) {
+                try {
+                    T processed=getEventProcessor().process(source, event, retriesLeft);
+                    
+                    if (processed != null) {
+                        results.add(processed);
+                    }
+                    
+                } catch(Exception e) {
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Retry event: "+event);
+                    }
+                    if (ret == null) {
+                        ret = new java.util.Vector<S>();
+                    }
+                    ret.add(event);
                 }
-                
-            } catch(Exception e) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Retry event: "+event);
-                }
-                if (ret == null) {
-                    ret = new java.util.Vector<S>();
-                }
-                ret.add(event);
             }
         }
         

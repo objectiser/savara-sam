@@ -77,6 +77,9 @@ public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
      */
     @SuppressWarnings("unchecked")
     public T process(String source, S event, int retriesLeft) throws Exception {
+        
+        _services.setResult(null);
+        
         // Get entry point
         // TODO: If not simple lookup, then may want to cache this
         WorkingMemoryEntryPoint entryPoint=_session.getWorkingMemoryEntryPoint(source);

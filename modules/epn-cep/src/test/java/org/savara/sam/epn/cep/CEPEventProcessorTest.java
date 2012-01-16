@@ -27,9 +27,10 @@ import org.savara.sam.activity.model.MessageExchange.InvocationType;
 public class CEPEventProcessorTest {
 
     private static final int TIME_INTERVAL = 2000;
+    private static final int GAP_INTERVAL = 3*60*1000;
 
     @Test
-    public void test() {
+    public void testPurchasingResponseTime() {
         CEPEventProcessor<Activity,java.util.Properties> ep=new CEPEventProcessor<Activity,java.util.Properties>();
         ep.setName("PurchasingResponseTime");
         
@@ -92,6 +93,69 @@ public class CEPEventProcessorTest {
             }
             
             long responseTime=(Long)props3.get("responseTime");
+            
+            if (responseTime != TIME_INTERVAL) {
+                fail("Response time should be "+TIME_INTERVAL+": "+responseTime);
+            }
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            fail("Exception: "+e);
+        }
+    }
+
+    @Test
+    public void testPurchasingResponseTimeOutOfOrder() {
+        CEPEventProcessor<Activity,java.util.Properties> ep=new CEPEventProcessor<Activity,java.util.Properties>();
+        ep.setName("PurchasingResponseTime");
+        
+        Activity e1=new Activity();
+        e1.setId("e1");
+        e1.setTimestamp(e1.getTimestamp()+GAP_INTERVAL);
+        MessageExchange me1=new MessageExchange();
+        me1.setCorrelation("corr1");
+        me1.setInvocationType(InvocationType.Request);
+        e1.setActivityType(me1);
+        
+        Activity e3=new Activity();
+        e3.setId("e3");
+        e3.setTimestamp(e3.getTimestamp()+GAP_INTERVAL+TIME_INTERVAL);
+        MessageExchange me3=new MessageExchange();
+        me3.setCorrelation("corr1");
+        me3.setInvocationType(InvocationType.Response);
+        e3.setActivityType(me3);
+        
+        try {            
+            ep.init();
+            
+            java.util.Properties props3=ep.process("Purchasing", e3, 0);
+            
+            if (props3 != null) {
+                fail("Should be no result 1");
+            }
+            
+            java.util.Properties props1=ep.process("Purchasing", e1, 0);
+            
+            if (props1 == null) {
+                fail("Result should not be null");
+            }
+            
+            String reqId=(String)props1.get("requestId");
+            String respId=(String)props1.get("responseId");
+            
+            if (!reqId.equals(e1.getId())) {
+                fail("Request id incorrect");
+            }
+            
+            if (!respId.equals(e3.getId())) {
+                fail("Response id incorrect");
+            }
+            
+            if (!props1.containsKey("responseTime")) {
+                fail("Response time not found");
+            }
+            
+            long responseTime=(Long)props1.get("responseTime");
             
             if (responseTime != TIME_INTERVAL) {
                 fail("Response time should be "+TIME_INTERVAL+": "+responseTime);

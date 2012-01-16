@@ -52,6 +52,7 @@
 	<properties>
 		<sam.version>1.0.0-SNAPSHOT</sam.version>
 		<drools.version>5.3.0.Final</drools.version>
+		<guava.version>r06</guava.version>
 		<jackson.version>1.6.3</jackson.version>
 		<junit.version>4.4</junit.version>
 	</properties>
