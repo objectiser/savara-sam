@@ -20,6 +20,7 @@
 
 	<modules>
 		<module>activity-model</module>
+		<module>activity-server</module>
 		<module>collector</module>
 		<module>collector-jms</module>
 		<module>epn</module>
