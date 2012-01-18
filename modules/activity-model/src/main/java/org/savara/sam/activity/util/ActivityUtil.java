@@ -18,6 +18,7 @@
 package org.savara.sam.activity.util;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.savara.sam.activity.model.Activity;
 
 /**
@@ -29,6 +30,9 @@ public class ActivityUtil {
     
     private static final ObjectMapper MAPPER=new ObjectMapper();
 
+    private static final TypeReference<java.util.List<Activity>> ACTIVITY_LIST=
+                        new TypeReference<java.util.List<Activity>>() {};
+    
     /**
      * This method serializes an Activity event into a JSON representation.
      * 
@@ -36,19 +40,40 @@ public class ActivityUtil {
      * @return The JSON serialized representation
      * @throws Exception Failed to serialize
      */
-	public static byte[] serialize(Activity act) throws Exception {
-	    byte[] ret=null;
-		
-		java.io.ByteArrayOutputStream baos=new java.io.ByteArrayOutputStream();
-		
-		MAPPER.writeValue(baos, act);
-		
-		ret = baos.toByteArray();
-		
-		baos.close();
-		
-		return(ret);
-	}
+    public static byte[] serialize(Activity act) throws Exception {
+        byte[] ret=null;
+        
+        java.io.ByteArrayOutputStream baos=new java.io.ByteArrayOutputStream();
+        
+        MAPPER.writeValue(baos, act);
+        
+        ret = baos.toByteArray();
+        
+        baos.close();
+        
+        return(ret);
+    }
+
+    /**
+     * This method serializes an Activity event list into a JSON representation.
+     * 
+     * @param activities The activity list
+     * @return The JSON serialized representation
+     * @throws Exception Failed to serialize
+     */
+    public static byte[] serializeList(java.util.List<Activity> activities) throws Exception {
+        byte[] ret=null;
+        
+        java.io.ByteArrayOutputStream baos=new java.io.ByteArrayOutputStream();
+        
+        MAPPER.writeValue(baos, activities);
+        
+        ret = baos.toByteArray();
+        
+        baos.close();
+        
+        return(ret);
+    }
 
     /**
      * This method deserializes an Activity event from a JSON representation.
@@ -63,6 +88,25 @@ public class ActivityUtil {
         java.io.ByteArrayInputStream bais=new java.io.ByteArrayInputStream(act);
         
         ret = MAPPER.readValue(bais, Activity.class);
+        
+        bais.close();
+        
+        return(ret);
+    }
+
+    /**
+     * This method deserializes an Activity event list from a JSON representation.
+     * 
+     * @param activities The JSON representation of the activity list
+     * @return The Activity event list
+     * @throws Exception Failed to deserialize
+     */
+    public static java.util.List<Activity> deserializeList(byte[] act) throws Exception {
+        java.util.List<Activity> ret=null;
+        
+        java.io.ByteArrayInputStream bais=new java.io.ByteArrayInputStream(act);
+        
+        ret = MAPPER.readValue(bais, ACTIVITY_LIST);
         
         bais.close();
         

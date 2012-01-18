@@ -78,6 +78,7 @@ public class DefaultActivityServerTest {
                 fail("Notifier 2 does not have correct number of events");
             }
         } catch(Exception e) {
+            e.printStackTrace();
             fail("Failed to store: "+e);
         }
     }

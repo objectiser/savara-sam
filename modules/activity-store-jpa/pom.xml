@@ -2,10 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.savara.sam.modules</groupId>
-	<artifactId>sam-activity-server</artifactId> 
+	<artifactId>sam-activity-store-jpa</artifactId> 
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>Savara SAM::Modules::Activity-Server</name>
+	<name>Savara SAM::Modules::Activity-Store-JPA</name>
 
 	<parent>
 		<groupId>org.savara.sam</groupId>
@@ -23,10 +23,9 @@
 			<version>${sam.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.enterprise</groupId>
-			<artifactId>cdi-api</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
+			<groupId>org.savara.sam.modules</groupId>
+			<artifactId>sam-activity-server</artifactId>
+			<version>${sam.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -35,4 +34,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
 </project>

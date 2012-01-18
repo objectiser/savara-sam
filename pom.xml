@@ -55,6 +55,7 @@
 		<guava.version>r06</guava.version>
 		<jackson.version>1.6.3</jackson.version>
 		<junit.version>4.4</junit.version>
+		<resteasy.version>2.3.0.GA</resteasy.version>
 	</properties>
 
 	<modules>

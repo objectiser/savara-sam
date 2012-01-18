@@ -17,6 +17,10 @@
  */
 package org.savara.sam.activity.server;
 
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+
 import org.savara.sam.activity.model.Activity;
 import org.savara.sam.activity.server.spi.ActivityNotifier;
 import org.savara.sam.activity.server.spi.ActivityStore;
@@ -27,8 +31,12 @@ import org.savara.sam.activity.server.spi.ActivityStore;
  */
 public class DefaultActivityServer implements ActivityServer {
 
+    @Inject
     private ActivityStore _store=null;
+    
     private java.util.List<ActivityNotifier> _notifiers=new java.util.Vector<ActivityNotifier>();
+    
+    private @Inject @Any Instance<ActivityNotifier> _injectedNotifiers=null;
     
     /**
      * This method sets the activity store.
@@ -64,10 +72,21 @@ public class DefaultActivityServer implements ActivityServer {
      * @throws Failed to store the activities
      */
     public void store(java.util.List<Activity> activities) throws Exception {
-        _store.store(activities);
+        
+        if (_store != null) {
+            _store.store(activities);
+        } else {
+            throw new Exception("Activity Store is unavailable");
+        }
         
         for (ActivityNotifier notifier : _notifiers) {
             notifier.notify(activities);
+        }
+        
+        if (_injectedNotifiers != null) {
+            for (ActivityNotifier notifier : _injectedNotifiers) {
+                notifier.notify(activities);
+            }
         }
     }
     
@@ -80,6 +99,11 @@ public class DefaultActivityServer implements ActivityServer {
      * @throws Failed to query the activities
      */
     public java.util.List<Activity> query(ActivityQuery query) throws Exception {
+        
+        if (_store == null) {
+            throw new Exception("Activity Store is unavailable");
+        }
+        
         return(_store.query(query));
     }
     

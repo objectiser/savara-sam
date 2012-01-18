@@ -29,10 +29,10 @@ import org.savara.sam.activity.model.MessageExchange.InvocationType;
 
 public class ActivityUtilTest {
 
-    public Activity getTestActivity() {
+    public Activity createTestActivity(String id) {
         Activity act=new Activity();
         
-        act.setId("TestId");
+        act.setId(id);
         act.setTimestamp(1000);
         
         Context context=new Context();
@@ -67,35 +67,35 @@ public class ActivityUtilTest {
         return (act);
     }
     
-	@Test
-	public void testSerialize() {
-		Activity act=getTestActivity();
-		
-		try {
-			byte[] b=ActivityUtil.serialize(act);
-			
-			java.io.InputStream is=ActivityUtilTest.class.getResourceAsStream("/json/test1.json");
-			byte[] b2=new byte[is.available()];
-			is.read(b2);
-			is.close();
-			
+    @Test
+    public void testSerialize() {
+        Activity act=createTestActivity("TestId");
+        
+        try {
+            byte[] b=ActivityUtil.serialize(act);
+            
+            java.io.InputStream is=ActivityUtilTest.class.getResourceAsStream("/json/activity.json");
+            byte[] b2=new byte[is.available()];
+            is.read(b2);
+            is.close();
+            
             String s1=new String(b);
             String s2=new String(b2);
             
             if (!s1.equals(s2)) {
                 fail("Test json is different: generated="+s1+" expected="+s2);
             }
-		} catch(Exception e) {
-		    e.printStackTrace();
-			fail("Failed to serialize: "+e);
-		}
-	}
+        } catch(Exception e) {
+            e.printStackTrace();
+            fail("Failed to serialize: "+e);
+        }
+    }
   
     @Test
     public void testDeserialize() {
         
         try {
-            java.io.InputStream is=ActivityUtilTest.class.getResourceAsStream("/json/test1.json");
+            java.io.InputStream is=ActivityUtilTest.class.getResourceAsStream("/json/activity.json");
 
             byte[] b=new byte[is.available()];
             is.read(b);
@@ -117,4 +117,73 @@ public class ActivityUtilTest {
             fail("Failed to deserialize: "+e);
         }
     }
+    
+    @Test
+    public void testSerializeList() {
+        Activity act1=createTestActivity("TestId1");
+        Activity act2=createTestActivity("TestId2");
+        
+        try {
+            java.util.List<Activity> acts=new java.util.Vector<Activity>();
+            acts.add(act1);
+            acts.add(act2);
+            
+            byte[] b1=ActivityUtil.serializeList(acts);
+            
+            java.io.InputStream is=ActivityUtilTest.class.getResourceAsStream("/json/activityList.json");
+            byte[] b2=new byte[is.available()];
+            is.read(b2);
+            is.close();
+            
+            String s1=new String(b1);
+            String s2=new String(b2);
+            
+            if (!s1.equals(s2)) {
+                fail("Test json is different: generated="+s1+" expected="+s2);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            fail("Failed to serialize: "+e);
+        }
+    }
+  
+    @Test
+    public void testDeserializeList() {
+        
+        try {
+            java.io.InputStream is=ActivityUtilTest.class.getResourceAsStream("/json/activityList.json");
+
+            byte[] b=new byte[is.available()];
+            is.read(b);
+            
+            java.util.List<Activity> act2=ActivityUtil.deserializeList(b);
+            
+            if (act2.size() != 2) {
+               fail("Should be two activities");
+            }
+            
+            if (!(act2.get(0) instanceof Activity)) {
+                fail("First element is not an activity");
+            }
+            
+            if (!(act2.get(1) instanceof Activity)) {
+                fail("Second element is not an activity");
+            }
+            
+            // Serialize
+            byte[] b2=ActivityUtil.serializeList(act2);
+            
+            String s1=new String(b);
+            String s2=new String(b2);
+            
+            if (!s1.equals(s2)) {
+                fail("Test json is different: generated="+s1+" expected="+s2);
+            }
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            fail("Failed to deserialize: "+e);
+        }
+    }
+    
 }
