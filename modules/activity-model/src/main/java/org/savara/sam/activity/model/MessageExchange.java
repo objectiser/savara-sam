@@ -17,9 +17,15 @@
  */
 package org.savara.sam.activity.model;
 
-public class MessageExchange extends ActivityType {
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-	private String _serviceType=null;
+public class MessageExchange extends ActivityType implements java.io.Externalizable {
+
+    private static final int VERSION = 1;
+
+    private String _serviceType=null;
 	private String _operation=null;
 	private String _fault=null;
 
@@ -121,4 +127,31 @@ public class MessageExchange extends ActivityType {
 	public String getCorrelation() {
 	    return (_correlation);
 	}
+	
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(VERSION);
+        
+        out.writeUTF(_serviceType);
+        out.writeUTF(_operation);
+        out.writeUTF(_fault);
+        out.writeObject(_invocationType);
+        out.writeObject(_direction);
+        out.writeUTF(_messageType);
+        out.writeUTF(_content);
+        out.writeUTF(_correlation);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException,
+            ClassNotFoundException {
+        in.readInt(); // Consume version, as not required for now
+        
+        _serviceType = in.readUTF();
+        _operation = in.readUTF();
+        _fault = in.readUTF();
+        _invocationType = (InvocationType)in.readObject();
+        _direction = (Direction)in.readObject();
+        _messageType = in.readUTF();
+        _content = in.readUTF();
+        _correlation = in.readUTF();
+    }
 }

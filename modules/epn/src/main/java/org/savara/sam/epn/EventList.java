@@ -26,4 +26,17 @@ public class EventList<T extends java.io.Serializable> extends java.util.Vector<
 
     private static final long serialVersionUID = -2940973962085558684L;
 
+    /**
+     * This method represents the default constructor.
+     */
+    public EventList() {
+    }
+
+    /**
+     * This method represents a constructor to initialize the event list
+     * from a standard Java list.
+     */
+    public EventList(java.util.List<T> list) {
+        super(list);
+    }
 }

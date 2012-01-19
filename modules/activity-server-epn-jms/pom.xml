@@ -2,10 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.savara.sam.modules</groupId>
-	<artifactId>sam-activity-server-rest</artifactId> 
+	<artifactId>sam-activity-server-epn-jms</artifactId> 
 	<version>1.0.0-SNAPSHOT</version>
-	<packaging>war</packaging>
-	<name>Savara SAM::Modules::Activity-Server-REST</name>
+	<packaging>jar</packaging>
+	<name>Savara SAM::Modules::Activity-Server-EPN-JMS</name>
 
 	<parent>
 		<groupId>org.savara.sam</groupId>
@@ -29,31 +29,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-store-jpa</artifactId>
+			<artifactId>sam-epn-jms</artifactId>
 			<version>${sam.version}</version>
-		</dependency>
-		
-		<!-- Ideally remove this out of war if cdi works in ear -->
-		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-server-epn-jms</artifactId>
-			<version>${sam.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jackson-provider</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<version>${resteasy.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.enterprise</groupId>
 			<artifactId>cdi-api</artifactId>
 			<version>1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>jms-api</artifactId>
+			<version>${jms.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

@@ -17,14 +17,20 @@
  */
 package org.savara.sam.activity.model;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
  * This class represents information about the component that is associated
  * with the activity.
  *
  */
-public class Component {
+public class Component implements java.io.Externalizable {
 
-	private String _service=null;
+    private static final int VERSION = 1;
+
+    private String _service=null;
 	private String _processDefinition=null;
 	private String _processInstance=null;
 	private String _task=null;
@@ -70,4 +76,23 @@ public class Component {
 	public String getTask() {
 		return (_task);
 	}
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(VERSION);
+        
+        out.writeUTF(_service);
+        out.writeUTF(_processDefinition);
+        out.writeUTF(_processInstance);
+        out.writeUTF(_task);
+    }
+
+    public void readExternal(ObjectInput in) throws IOException,
+            ClassNotFoundException {
+        in.readInt(); // Consume version, as not required for now
+        
+        _service = in.readUTF();
+        _processDefinition = in.readUTF();
+        _processInstance = in.readUTF();
+        _task = in.readUTF();
+    }
 }
