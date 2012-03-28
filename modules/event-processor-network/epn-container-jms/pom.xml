@@ -1,30 +1,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.savara.sam.modules</groupId>
-	<artifactId>sam-epn-jms</artifactId> 
+	<groupId>org.savara.sam.event-processor-network</groupId>
+	<artifactId>epn-container-jms</artifactId> 
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>Savara SAM::Modules::Event-Processor-Network-JMS</name>
+	<name>Savara SAM::Modules::Event Processor Network::EPN Container JMS</name>
 
 	<parent>
 		<groupId>org.savara.sam</groupId>
-		<artifactId>modules</artifactId>
+		<artifactId>event-processor-network</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<properties>
-	</properties>
-  
 	<dependencies>
 		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-epn</artifactId>
+			<groupId>org.savara.sam.event-processor-network</groupId>
+			<artifactId>epn-core</artifactId>
 			<version>${sam.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-model</artifactId>
+			<groupId>org.savara.sam.activity-management</groupId>
+			<artifactId>activity-model</artifactId>
 			<version>${sam.version}</version>
 			<scope>test</scope>
 		</dependency>

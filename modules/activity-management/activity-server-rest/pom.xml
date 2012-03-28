@@ -1,42 +1,39 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.savara.sam.modules</groupId>
-	<artifactId>sam-activity-server-rest</artifactId> 
+	<groupId>org.savara.sam.activity-management</groupId>
+	<artifactId>activity-server-rest</artifactId> 
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>Savara SAM::Modules::Activity-Server-REST</name>
+	<name>Savara SAM::Modules::Activity Management::Activity Server REST</name>
 
 	<parent>
 		<groupId>org.savara.sam</groupId>
-		<artifactId>modules</artifactId>
+		<artifactId>activity-management</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-
-	<properties>
-	</properties>
   
 	<dependencies>
 		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-model</artifactId>
+			<groupId>org.savara.sam.activity-management</groupId>
+			<artifactId>activity-model</artifactId>
 			<version>${sam.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-server</artifactId>
+			<groupId>org.savara.sam.activity-management</groupId>
+			<artifactId>activity-server</artifactId>
 			<version>${sam.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-store-jpa</artifactId>
+			<groupId>org.savara.sam.activity-management</groupId>
+			<artifactId>activity-store-jpa</artifactId>
 			<version>${sam.version}</version>
 		</dependency>
 		
 		<!-- Ideally remove this out of war if cdi works in ear -->
 		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-server-epn-jms</artifactId>
+			<groupId>org.savara.sam.activity-management</groupId>
+			<artifactId>activity-server-epn-jms</artifactId>
 			<version>${sam.version}</version>
 		</dependency>
 		

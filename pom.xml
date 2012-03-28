@@ -60,7 +60,9 @@
 	</properties>
 
 	<modules>
-		<module>modules</module>
+		<module>modules/activity-management</module>
+		<module>modules/event-processor-network</module>
+		<module>modules/active-collections</module>
 		<module>integration</module>
 	</modules>
 
