@@ -19,7 +19,10 @@
 		<module>activity-model</module>
 		<module>activity-server</module>
 		<module>activity-server-rest</module>
+<!--
 		<module>activity-server-epn-jms</module>
+-->
+
 		<module>activity-store-jpa</module>
 		<module>collector</module>
 		<module>collector-jms</module>

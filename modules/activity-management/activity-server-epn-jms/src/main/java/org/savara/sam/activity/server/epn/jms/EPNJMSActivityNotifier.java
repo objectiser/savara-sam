@@ -33,7 +33,7 @@ import javax.jms.Session;
 import org.savara.sam.activity.model.Activity;
 import org.savara.sam.activity.server.spi.ActivityNotifier;
 import org.savara.sam.epn.EventList;
-import org.savara.sam.epn.jms.JMSEventDestination;
+import org.savara.sam.epn.util.jms.JMSEventDestination;
 
 /**
  * This class provides a bridge between the Activity Server, where

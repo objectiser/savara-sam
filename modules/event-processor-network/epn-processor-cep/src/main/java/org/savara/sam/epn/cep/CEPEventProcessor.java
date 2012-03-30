@@ -31,14 +31,14 @@ import org.drools.conf.MBeansOption;
 import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.WorkingMemoryEntryPoint;
-import org.savara.sam.epn.AbstractEventProcessor;
+import org.savara.sam.epn.EventProcessor;
 
 /**
  * This class represents the CEP implementation of the Event
  * Processor.
  *
  */
-public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
+public class CEPEventProcessor<S,T> extends EventProcessor<S,T> {
 
     private static Logger LOG=Logger.getLogger(CEPEventProcessor.class.getName());
 
@@ -46,12 +46,31 @@ public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
     private static java.util.Map<String,StatefulKnowledgeSession> _sessions=
                 new java.util.HashMap<String,StatefulKnowledgeSession>();
     private StatefulKnowledgeSession _session=null;
+    private String _ruleName=null;
 
     /**
      * {@inheritDoc}
      */
     public void init() throws Exception {
         _session = createSession();
+    }
+    
+    /**
+     * This method returns the rule name.
+     * 
+     * @return The rule name
+     */
+    public String getRuleName() {
+        return (_ruleName);
+    }
+    
+    /**
+     * This method sets the rule name.
+     * 
+     * @param ruleName The rule name
+     */
+    public void setRuleName(String ruleName) {
+        _ruleName = ruleName;
     }
     
     /**
@@ -94,7 +113,7 @@ public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
             
         } else if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest("No entry point for source Event Processor '"+source+
-                    "' on CEP Event Processor '"+getName()+"'");
+                    "' on CEP Event Processor '"+getRuleName()+"'");
         }
         
         return (T)_services.getResult();
@@ -110,7 +129,7 @@ public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
         StatefulKnowledgeSession ret=null;
         
         synchronized(_sessions) {
-            ret = _sessions.get(getName());
+            ret = _sessions.get(getRuleName());
             
             if (ret == null) {              
                 KnowledgeBase kbase = loadRuleBase();
@@ -122,7 +141,7 @@ public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
                         ret.setGlobal("services", _services);
                         ret.fireAllRules();
                         
-                        _sessions.put(getName(), ret);
+                        _sessions.put(getRuleName(), ret);
                     }
                 }
             }
@@ -138,7 +157,7 @@ public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
      * @return The knowledge base
      */
     private KnowledgeBase loadRuleBase() {
-        String cepRuleBase=getName()+".drl";
+        String cepRuleBase=getRuleName()+".drl";
 
         try {
             KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -161,14 +180,14 @@ public class CEPEventProcessor<S,T> extends AbstractEventProcessor<S,T> {
                 KnowledgeBaseConfiguration conf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
                 conf.setOption( EventProcessingOption.STREAM );
                 conf.setOption( MBeansOption.ENABLED );
-                KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(getName(), conf );
+                KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(getRuleName(), conf );
                 kbase.addKnowledgePackages( builder.getKnowledgePackages() );
                 return kbase;
             }
         
         } catch (Throwable e) {
             LOG.log(Level.SEVERE, "Failed to load CEP rules '"+
-                    cepRuleBase+"' for Event Processor '"+getName()+"'", e);
+                    cepRuleBase+"' for Event Processor '"+getRuleName()+"'", e);
         }
 
         return (null);

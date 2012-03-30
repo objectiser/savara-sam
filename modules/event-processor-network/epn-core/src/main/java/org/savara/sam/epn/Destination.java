@@ -22,15 +22,31 @@ package org.savara.sam.epn;
  * list of events.
  *
  */
-public interface EventDestination {
+public class Destination {
+    
+    private String _name=null;
 
     /**
-     * This method sends the supplied events to a destination.
-     * 
-     * @param source The source event processor
-     * @param events The events
-     * @throws Exception Failed to send the events
+     * This is the default constructor.
      */
-    public void send(String source, EventList<?> events) throws Exception;
-
+    public Destination() {
+    }
+    
+    /**
+     * This method returns the name of the event destination.
+     * 
+     * @return The name
+     */
+    public String getName() {
+        return (_name);
+    }
+    
+    /**
+     * This method sets the name of the event destination.
+     * 
+     * @param name The name
+     */
+    public void setName(String name) {
+        _name = name;
+    }
 }

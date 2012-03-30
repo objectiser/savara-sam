@@ -17,34 +17,25 @@
  */
 package org.savara.sam.epn;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+
 /**
  * This interface defines an event processor responsible
  * for processing events, and where appropriate, forwarding
  * results to other awaiting event processors.
  *
  */
-public interface EventProcessor<S,T> {
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+public abstract class EventProcessor<S,T> {
     
-    /**
-     * This is the unique name of the Event Processor.
-     * 
-     * @return The name
-     */
-    public String getName();
-
-    /**
-     * This method sets the unique name of the Event Processor.
-     * 
-     * @param name The name
-     */
-    public void setName(String name);
-
     /**
      * This method initializes the event processor.
      * 
+     * @param context The container context
      * @throws Exception Failed to initialize
      */
-    public void init() throws Exception;
+    public void init(NetworkContext context) throws Exception {
+    }
     
     /**
      * This method processes the supplied event, and optionally
@@ -54,20 +45,22 @@ public interface EventProcessor<S,T> {
      * a retry. The number of remaining retries is supplied,
      * to enable the processor to take appropriate error
      * reporting action.
-     * 
+     *
      * @param source The source event processor name that generated the event
      * @param event The event to process
      * @param retriesLeft The number of retries left
      * @return The optional transformed representation of the event
      * @throws Exception Failed to process event, requesting retry
      */
-    public T process(String source, S event, int retriesLeft) throws Exception;
-    
+    public abstract T process(String source, S event, int retriesLeft) throws Exception;
+
     /**
      * This method closes the event processor.
      * 
+     * @param context The container context
      * @throws Exception Failed to close
      */
-    public void close() throws Exception;
-    
+    public void close(NetworkContext context) throws Exception {
+    }
+
 }

@@ -32,7 +32,7 @@ public class CEPEventProcessorTest {
     @Test
     public void testPurchasingResponseTime() {
         CEPEventProcessor<Activity,java.util.Properties> ep=new CEPEventProcessor<Activity,java.util.Properties>();
-        ep.setName("PurchasingResponseTime");
+        ep.setRuleName("PurchasingResponseTime");
         
         Activity e1=new Activity();
         e1.setId("e1");
@@ -107,7 +107,7 @@ public class CEPEventProcessorTest {
     @Test
     public void testPurchasingResponseTimeOutOfOrder() {
         CEPEventProcessor<Activity,java.util.Properties> ep=new CEPEventProcessor<Activity,java.util.Properties>();
-        ep.setName("PurchasingResponseTime");
+        ep.setRuleName("PurchasingResponseTime");
         
         Activity e1=new Activity();
         e1.setId("e1");

@@ -17,44 +17,42 @@
  */
 package org.savara.sam.epn;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+
 /**
- * This interface defines an event processor responsible
- * for processing events, and where appropriate, forwarding
- * results to other awaiting event processors.
+ * This class represents the predicate applied to an
+ * event being processed.
  *
+ * @param <T> The event type
  */
-public abstract class AbstractEventProcessor<S,T> implements EventProcessor<S,T> {
-    
-    private String _name=null;
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getName() {
-        return (_name);
-    }
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+public abstract class Predicate<T> {
 
     /**
-     * {@inheritDoc}
-     */
-    public void setName(String name) {
-        _name = name;
-    }
-
-    /**
-     * This method initializes the event processor.
+     * This method initializes the predicate.
      * 
-     * @throws Exception Failed to initialize
+     * @param context The container context
+     * @throws Exception Failed to initialize the predicate
      */
-    public void init() throws Exception {
+    public void init(NetworkContext context) throws Exception {
     }
     
     /**
-     * This method closes the event processor.
+     * This method applies the predicate to the supplied
+     * event to determine if it should be processed.
      * 
-     * @throws Exception Failed to close
+     * @param event The event
+     * @return Whether the event should be processed
      */
-    public void close() throws Exception {
-    }
+    public abstract boolean apply(T event);
 
+    /**
+     * This method closes the predicate.
+     * 
+     * @param context The container context
+     * @throws Exception Failed to close the predicate
+     */
+    protected void close(NetworkContext context) throws Exception {
+    }
+    
 }
