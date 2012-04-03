@@ -1,40 +1,41 @@
 {
   "name" : "Test",
-  "nodes" : [ {
-    "name" : "N0",
-    "destinations" : [ {
-      "network" : "Test",
-      "node" : "N1"
-    } ],
-    "predicate" : {
-      "@class" : "org.savara.sam.epn.testdata.TestPredicate1"
+  "nodes" : {
+    "N1" : {
+      "destinations" : [ ],
+      "predicate" : {
+        "@class" : "org.savara.sam.epn.testdata.TestPredicate2",
+        "someProperty" : "TestProperty"
+      },
+      "eventProcessor" : {
+        "@class" : "org.savara.sam.epn.testdata.TestEventProcessor2"
+      },
+      "maxRetries" : 3,
+      "retryInterval" : 0
     },
-    "eventProcessor" : {
-      "@class" : "org.savara.sam.epn.testdata.TestEventProcessor1"
+    "N0" : {
+      "destinations" : [ {
+        "network" : "Test",
+        "node" : "N1"
+      } ],
+      "predicate" : {
+        "@class" : "org.savara.sam.epn.testdata.TestPredicate1"
+      },
+      "eventProcessor" : {
+        "@class" : "org.savara.sam.epn.testdata.TestEventProcessor1"
+      },
+      "maxRetries" : 3,
+      "retryInterval" : 0
     },
-    "maxRetries" : 3,
-    "retryInterval" : 0
-  }, {
-    "name" : "N1",
-    "destinations" : [ ],
-    "predicate" : {
-      "@class" : "org.savara.sam.epn.testdata.TestPredicate2",
-      "someProperty" : "TestProperty"
-    },
-    "eventProcessor" : {
-      "@class" : "org.savara.sam.epn.testdata.TestEventProcessor2"
-    },
-    "maxRetries" : 3,
-    "retryInterval" : 0
-  }, {
-    "name" : "N2",
-    "destinations" : [ ],
-    "predicate" : null,
-    "eventProcessor" : {
-      "@class" : "org.savara.sam.epn.testdata.TestEventProcessor3"
-    },
-    "maxRetries" : 3,
-    "retryInterval" : 0
-  } ],
+    "N2" : {
+      "destinations" : [ ],
+      "predicate" : null,
+      "eventProcessor" : {
+        "@class" : "org.savara.sam.epn.testdata.TestEventProcessor3"
+      },
+      "maxRetries" : 3,
+      "retryInterval" : 0
+    }
+  },
   "rootNodeName" : "N0"
 }

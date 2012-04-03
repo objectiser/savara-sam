@@ -31,22 +31,23 @@ public interface EPNContext {
      * reason, then an exception will be thrown indicating the
      * problem.
      * 
+     * @param source The source node
      * @param dest The destination
      * @return The channel
      * @throws Exception Channel cannot be created
      */
-    public Channel getChannel(Destination dest) throws Exception;
+    public Channel getChannel(String source, Destination dest) throws Exception;
 
     /**
      * This method returns a retry channel associated with the
      * supplied node. This channel is used to retry a set of
      * events that fail the event processing stage.
      * 
-     * @param node The node
+     * @param source The source node
      * @return The retry channel
      * @throws Exception Retry channel cannot be created
      */
-    public RetryChannel getRetryChannel(Node<?,?> node) throws Exception;
+    public RetryChannel getRetryChannel(String source) throws Exception;
     
     /**
      * This method indicates that the supplied set of events failed
@@ -54,6 +55,6 @@ public interface EPNContext {
      * 
      * @param events The set of events that failed processing
      */
-    public void eventProcessingFailed(EventList<?> events);
+    public void eventProcessingFailed(EventList events);
     
 }

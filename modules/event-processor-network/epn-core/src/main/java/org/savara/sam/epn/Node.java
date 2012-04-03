@@ -26,15 +26,14 @@ import java.util.logging.Logger;
  * @param <S> The source event type
  * @param <T> The target event type
  */
-public class Node<S extends java.io.Serializable,T extends java.io.Serializable> {
+public class Node {
 
     private static Logger LOG=Logger.getLogger(Node.class.getName());
     
-    private String _name=null;
     private int _maxRetries=3;
     private long _retryInterval=0;
-    private EventProcessor<S,T> _eventProcessor=null;
-    private Predicate<S> _predicate=null;
+    private EventProcessor _eventProcessor=null;
+    private Predicate _predicate=null;
     private java.util.List<Destination> _destinations=new java.util.Vector<Destination>();
     
     private java.util.List<Channel> _channels=new java.util.Vector<Channel>();
@@ -45,24 +44,6 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * 
      */
     public Node() {
-    }
-    
-    /**
-     * This method returns the node name.
-     * 
-     * @return The node name
-     */
-    public String getName() {
-        return (_name);
-    }
-    
-    /**
-     * This method sets the node name.
-     * 
-     * @param name The node name
-     */
-    public void setName(String name) {
-        _name = name;
     }
     
     /**
@@ -130,7 +111,7 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * 
      * @return The event processor
      */
-    public EventProcessor<S,T> getEventProcessor() {
+    public EventProcessor getEventProcessor() {
         return (_eventProcessor);
     }
     
@@ -139,7 +120,7 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * 
      * @param ep The event processor
      */
-    public void setEventProcessor(EventProcessor<S,T> ep) {
+    public void setEventProcessor(EventProcessor ep) {
         _eventProcessor = ep;
     }
     
@@ -149,7 +130,7 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * 
      * @return The optional predicate
      */
-    public Predicate<S> getPredicate() {
+    public Predicate getPredicate() {
         return (_predicate);
     }
     
@@ -159,7 +140,7 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * 
      * @param pred The optional predicate
      */
-    public void setPredicate(Predicate<S> pred) {
+    public void setPredicate(Predicate pred) {
         _predicate = pred;
     }
     
@@ -167,25 +148,26 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * This method initializes the node.
      * 
      * @param context The context
+     * @param nodeName The node's name
      * @throws Exception Failed to initialize the node
      */
-    protected void init(EPNContext context) throws Exception {
+    protected void init(EPNContext context, String nodeName) throws Exception {
         
         // Obtain the channels associated with the specified destinations
         if (_destinations != null) {
             for (Destination d : _destinations) {
-                _channels.add(context.getChannel(d));
+                _channels.add(context.getChannel(nodeName, d));
             }
         }
         
-        _retryChannel = context.getRetryChannel(this);
+        _retryChannel = context.getRetryChannel(nodeName);
         
         if (getPredicate() != null) {
             getPredicate().init(context);
         }
         
         if (getEventProcessor() == null) {
-            throw new Exception("Event Processor has not been configured for node '"+getName()+"'");
+            throw new Exception("Event Processor has not been configured for node '"+nodeName+"'");
         }
         
         getEventProcessor().init(context);
@@ -198,21 +180,21 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * to be returned to be retried.
      * 
      * @param context The context
-     * @param source The source event processor node that generated the event
+     * @param source The source node that generated the event
      * @param events The list of events to be processed
      * @param retriesLeft The number of remaining retries
      * @throws Exception Failed to process events, and should result in transaction rollback
      */
     protected void process(EPNContext context, String source,
-                      EventList<S> events, int retriesLeft) throws Exception {
-        EventList<S> retries=null;
-        EventList<T> results=new EventList<T>();
+                      EventList events, int retriesLeft) throws Exception {
+        EventList retries=null;
+        EventList results=new EventList();
         
-        for (S event : events) {
+        for (java.io.Serializable event : events) {
             
             if (getPredicate() == null || getPredicate().apply(event)) {
                 try {
-                    T processed=getEventProcessor().process(source, event, retriesLeft);
+                    java.io.Serializable processed=getEventProcessor().process(source, event, retriesLeft);
                     
                     if (processed != null) {
                         results.add(processed);
@@ -223,7 +205,7 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
                         LOG.fine("Retry event: "+event);
                     }
                     if (retries == null) {
-                        retries = new EventList<S>();
+                        retries = new EventList();
                     }
                     retries.add(event);
                 }
@@ -247,10 +229,10 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * @param results The results
      * @throws Exception Failed to forward results
      */
-    protected void forward(EPNContext context, EventList<T> results) throws Exception {
+    protected void forward(EPNContext context, EventList results) throws Exception {
         
         for (Channel ch : _channels) {
-            ch.send(getName(), results);
+            ch.send(results);
         }
     }
 
@@ -263,7 +245,7 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * @param retriesLeft The number of retries left
      * @throws Exception Failed to forward results
      */
-    protected void retry(EPNContext context, EventList<S> events, int retriesLeft) throws Exception {
+    protected void retry(EPNContext context, EventList events, int retriesLeft) throws Exception {
         
         if (_retryChannel != null && retriesLeft > 0) {
             _retryChannel.send(events, retriesLeft-1);
@@ -276,9 +258,10 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * This method closes the node.
      * 
      * @param context The container context
+     * @oaram nodeName The node name
      * @throws Exception Failed to close the node
      */
-    protected void close(EPNContext context) throws Exception {
+    protected void close(EPNContext context, String nodeName) throws Exception {
         
         for (Channel ch : _channels) {
             ch.close();

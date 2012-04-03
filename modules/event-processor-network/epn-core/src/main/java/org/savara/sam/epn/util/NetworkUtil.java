@@ -41,7 +41,7 @@ public class NetworkUtil {
      * @return The JSON serialized representation
      * @throws Exception Failed to serialize
      */
-    public static byte[] serialize(Network<?> epn) throws Exception {
+    public static byte[] serialize(Network epn) throws Exception {
         byte[] ret=null;
         
         java.io.ByteArrayOutputStream baos=new java.io.ByteArrayOutputStream();
@@ -62,8 +62,8 @@ public class NetworkUtil {
      * @return The Event Processor Network
      * @throws Exception Failed to deserialize
      */
-    public static Network<?> deserialize(byte[] epn) throws Exception {
-        Network<?> ret=null;
+    public static Network deserialize(byte[] epn) throws Exception {
+        Network ret=null;
         
         java.io.ByteArrayInputStream bais=new java.io.ByteArrayInputStream(epn);
         

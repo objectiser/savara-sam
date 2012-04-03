@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  *
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
-public abstract class EventProcessor<S,T> {
+public abstract class EventProcessor {
     
     /**
      * This method initializes the event processor.
@@ -52,7 +52,8 @@ public abstract class EventProcessor<S,T> {
      * @return The optional transformed representation of the event
      * @throws Exception Failed to process event, requesting retry
      */
-    public abstract T process(String source, S event, int retriesLeft) throws Exception;
+    public abstract java.io.Serializable process(String source,
+                java.io.Serializable event, int retriesLeft) throws Exception;
 
     /**
      * This method closes the event processor.

@@ -19,9 +19,9 @@ package org.savara.sam.epn.testdata;
 
 import org.savara.sam.epn.Predicate;
 
-public class TestPredicate1<T> extends Predicate<T> {
+public class TestPredicate1 extends Predicate {
 
-    public boolean apply(T arg0) {
+    public boolean apply(Object arg0) {
         // TODO Auto-generated method stub
         return false;
     }

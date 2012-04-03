@@ -21,13 +21,13 @@ package org.savara.sam.epn;
  * This class represents an Event Processor Network.
  *
  */
-public class Network<S extends java.io.Serializable> {
+public class Network {
 
     private String _name=null;
     private String _rootNodeName=null;
-    private java.util.List<Node<?,?>> _nodes=new java.util.Vector<Node<?,?>>();
+    private java.util.Map<String,Node> _nodes=new java.util.HashMap<String,Node>();
     
-    private Node<S,?> _root=null;
+    private Node _root=null;
     
     /**
      * The default constructor.
@@ -77,7 +77,7 @@ public class Network<S extends java.io.Serializable> {
      * 
      * @return The event processor nodes
      */
-    public java.util.List<Node<?,?>> getNodes() {
+    public java.util.Map<String,Node> getNodes() {
         return (_nodes);
     }
     
@@ -86,7 +86,7 @@ public class Network<S extends java.io.Serializable> {
      * 
      * void nodes The event processor nodes
      */
-    public void setNodes(java.util.List<Node<?,?>> nodes) {
+    public void setNodes(java.util.Map<String,Node> nodes) {
         _nodes = nodes;
     }
 
@@ -96,13 +96,13 @@ public class Network<S extends java.io.Serializable> {
      * @param context The container context
      * @throws Exception Failed to initialize the network
      */
-    @SuppressWarnings("unchecked")
     protected void init(EPNContext context) throws Exception {
-        for (Node<?,?> node : _nodes) {
-            node.init(context);
+        for (String name : _nodes.keySet()) {
+            Node node=_nodes.get(name);
+            node.init(context, name);
             
-            if (node.getName().equals(getRootNodeName())) {
-                _root = (Node<S,?>)node;                
+            if (name.equals(getRootNodeName())) {
+                _root = node;                
             }
         }
         
@@ -119,7 +119,7 @@ public class Network<S extends java.io.Serializable> {
      * @param events The list of events to be processed
      * @throws Exception Failed to process events, and should result in transaction rollback
      */
-    protected void process(EPNContext context, EventList<S> events) throws Exception {
+    protected void process(EPNContext context, EventList events) throws Exception {
  
         if (_root != null) {
             _root.process(context, null, events, _root.getMaxRetries());
@@ -133,8 +133,9 @@ public class Network<S extends java.io.Serializable> {
      * @throws Exception Failed to close the network
      */
     protected void close(EPNContext context) throws Exception {
-        for (Node<?,?> node : _nodes) {
-            node.close(context);
+        for (String name : _nodes.keySet()) {
+            Node node=_nodes.get(name);
+            node.close(context, name);
         }
     }
     

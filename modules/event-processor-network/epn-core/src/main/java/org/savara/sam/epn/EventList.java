@@ -22,7 +22,7 @@ package org.savara.sam.epn;
  *
  * @param <T> The event type
  */
-public class EventList<T extends java.io.Serializable> extends java.util.Vector<T> {
+public class EventList extends java.util.Vector<java.io.Serializable> {
 
     private static final long serialVersionUID = -2940973962085558684L;
 
@@ -36,7 +36,7 @@ public class EventList<T extends java.io.Serializable> extends java.util.Vector<
      * This method represents a constructor to initialize the event list
      * from a standard Java list.
      */
-    public EventList(java.util.List<T> list) {
+    public EventList(java.util.List<? extends java.io.Serializable> list) {
         super(list);
     }
 }

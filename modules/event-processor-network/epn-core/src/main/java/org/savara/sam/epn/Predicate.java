@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  * @param <T> The event type
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
-public abstract class Predicate<T> {
+public abstract class Predicate {
 
     /**
      * This method initializes the predicate.
@@ -44,7 +44,7 @@ public abstract class Predicate<T> {
      * @param event The event
      * @return Whether the event should be processed
      */
-    public abstract boolean apply(T event);
+    public abstract boolean apply(Object event);
 
     /**
      * This method closes the predicate.

@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import org.savara.sam.epn.AbstractEPNManager;
 import org.savara.sam.epn.EPNContext;
 import org.savara.sam.epn.EPNManager;
+import org.savara.sam.epn.EventList;
 import org.savara.sam.epn.Network;
 
 /**
@@ -42,7 +43,7 @@ public class EmbeddedEPNManager extends AbstractEPNManager {
         return(_context);
     }
     
-    public void enqueue(String network, List<?> events) throws Exception {
+    public void enqueue(String network, EventList events) throws Exception {
         
     }
 

@@ -28,11 +28,10 @@ public interface Channel {
      * This method sends the supplied events to a destination
      * associated with the channel.
      * 
-     * @param source The source event processor
      * @param events The events
      * @throws Exception Failed to send the events
      */
-    public void send(String source, EventList<?> events) throws Exception;
+    public void send(EventList events) throws Exception;
 
     /**
      * This method closes the channel.

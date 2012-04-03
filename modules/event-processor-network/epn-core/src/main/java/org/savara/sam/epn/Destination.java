@@ -34,6 +34,17 @@ public class Destination {
     }
     
     /**
+     * This constructor initializes the network and node names.
+     * 
+     * @param network The network name
+     * @param node The node name
+     */
+    public Destination(String network, String node) {
+        _network = network;
+        _node = node;
+    }
+    
+    /**
      * This method returns the network destination.
      * 
      * @return The network

@@ -30,15 +30,15 @@ public interface EPNManager {
      * @param network The network
      * @throws Exception Failed to register the network
      */
-    public void register(Network<?> network) throws Exception;
+    public void register(Network network) throws Exception;
     
     /**
      * This method unregisters a network.
      * 
-     * @param network The network
+     * @param networkName The network name
      * @throws Exception Failed to unregister the network
      */
-    public void unregister(Network<?> network) throws Exception;
+    public void unregister(String networkName) throws Exception;
     
     /**
      * This method queues up the supplied events to be processed
@@ -49,7 +49,7 @@ public interface EPNManager {
      * @throws Exception Failed to enqueue the events
      */
     public void enqueue(String network,
-                        java.util.List<?> events) throws Exception;
+                        EventList events) throws Exception;
     
     /**
      * This method closes the manager.

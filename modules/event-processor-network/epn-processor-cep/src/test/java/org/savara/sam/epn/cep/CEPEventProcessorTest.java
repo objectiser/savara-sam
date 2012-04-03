@@ -31,7 +31,7 @@ public class CEPEventProcessorTest {
 
     @Test
     public void testPurchasingResponseTime() {
-        CEPEventProcessor<Activity,java.util.Properties> ep=new CEPEventProcessor<Activity,java.util.Properties>();
+        CEPEventProcessor ep=new CEPEventProcessor();
         ep.setRuleName("PurchasingResponseTime");
         
         Activity e1=new Activity();
@@ -59,19 +59,19 @@ public class CEPEventProcessorTest {
         try {            
             ep.init();
             
-            java.util.Properties props1=ep.process("Purchasing", e1, 0);
+            java.util.Properties props1=(java.util.Properties)ep.process("Purchasing", e1, 0);
             
             if (props1 != null) {
                 fail("Should be no result 1");
             }
             
-            java.util.Properties props2=ep.process("Purchasing", e2, 0);
+            java.util.Properties props2=(java.util.Properties)ep.process("Purchasing", e2, 0);
             
             if (props2 != null) {
                 fail("Should be no result 2");
             }
             
-            java.util.Properties props3=ep.process("Purchasing", e3, 0);
+            java.util.Properties props3=(java.util.Properties)ep.process("Purchasing", e3, 0);
             
             if (props3 == null) {
                 fail("Result should not be null");
@@ -106,7 +106,7 @@ public class CEPEventProcessorTest {
 
     @Test
     public void testPurchasingResponseTimeOutOfOrder() {
-        CEPEventProcessor<Activity,java.util.Properties> ep=new CEPEventProcessor<Activity,java.util.Properties>();
+        CEPEventProcessor ep=new CEPEventProcessor();
         ep.setRuleName("PurchasingResponseTime");
         
         Activity e1=new Activity();
@@ -128,13 +128,13 @@ public class CEPEventProcessorTest {
         try {            
             ep.init();
             
-            java.util.Properties props3=ep.process("Purchasing", e3, 0);
+            java.util.Properties props3=(java.util.Properties)ep.process("Purchasing", e3, 0);
             
             if (props3 != null) {
                 fail("Should be no result 1");
             }
             
-            java.util.Properties props1=ep.process("Purchasing", e1, 0);
+            java.util.Properties props1=(java.util.Properties)ep.process("Purchasing", e1, 0);
             
             if (props1 == null) {
                 fail("Result should not be null");

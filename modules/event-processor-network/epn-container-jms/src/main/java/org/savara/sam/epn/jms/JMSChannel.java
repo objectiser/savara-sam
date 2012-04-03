@@ -31,18 +31,21 @@ public class JMSChannel implements Channel {
     private javax.jms.Session _session=null;
     private javax.jms.MessageProducer _producer=null;
     private Destination _destination=null;
+    private String _source=null;
 
     /**
      * This is the constructor for the JMS channel.
      * 
      * @param session The session
      * @param producer The producer
+     * @param source The source
      * @param destination The node destination
      */
     public JMSChannel(javax.jms.Session session, javax.jms.MessageProducer producer,
-                            Destination dest) {
+                            String source, Destination dest) {
         _session = session;
         _producer = producer;
+        _source = source;
         _destination = dest;
     }
     
@@ -53,11 +56,11 @@ public class JMSChannel implements Channel {
      * @param events The events
      * @throws Exception Failed to send the events
      */
-    public void send(String source, EventList<?> events) throws Exception {
+    public void send(EventList events) throws Exception {
         javax.jms.ObjectMessage mesg=_session.createObjectMessage(events);
         mesg.setStringProperty(JMSEPNManager.EPN_NETWORK, _destination.getNetwork());
         mesg.setStringProperty(JMSEPNManager.EPN_DESTINATION_NODE, _destination.getNode());
-        mesg.setStringProperty(JMSEPNManager.EPN_SOURCE_NODE, source);
+        mesg.setStringProperty(JMSEPNManager.EPN_SOURCE_NODE, _source);
         mesg.setIntProperty(JMSEPNManager.EPN_RETRIES_LEFT, -1);
         _producer.send(mesg);
     }

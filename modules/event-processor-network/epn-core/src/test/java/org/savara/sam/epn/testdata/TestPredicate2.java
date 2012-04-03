@@ -19,7 +19,7 @@ package org.savara.sam.epn.testdata;
 
 import org.savara.sam.epn.Predicate;
 
-public class TestPredicate2<T> extends Predicate<T> {
+public class TestPredicate2 extends Predicate {
 
     private String _someProperty=null;
     
@@ -31,7 +31,7 @@ public class TestPredicate2<T> extends Predicate<T> {
         _someProperty = prop;
     }
     
-    public boolean apply(T arg0) {
+    public boolean apply(Object arg0) {
         // TODO Auto-generated method stub
         return false;
     }

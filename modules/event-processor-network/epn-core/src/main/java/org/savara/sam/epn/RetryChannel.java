@@ -37,7 +37,7 @@ public interface RetryChannel {
      * @param retriesRemaining The number of retries remaining
      * @throws Exception Failed to send the events
      */
-    public void send(EventList<?> events, int retriesRemaining) throws Exception;
+    public void send(EventList events, int retriesRemaining) throws Exception;
 
     /**
      * This method closes the channel.

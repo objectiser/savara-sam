@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.savara.sam.epn.Destination;
 import org.savara.sam.epn.Network;
 import org.savara.sam.epn.Node;
-import org.savara.sam.epn.testdata.TestEvent;
+//import org.savara.sam.epn.testdata.TestEvent;
 import org.savara.sam.epn.testdata.TestEventProcessor1;
 import org.savara.sam.epn.testdata.TestEventProcessor2;
 import org.savara.sam.epn.testdata.TestEventProcessor3;
@@ -35,7 +35,7 @@ public class NetworkUtilTest {
 
     @Test
     public void testSerializeEPN() {
-        Network<TestEvent> epn=new Network<TestEvent>();
+        Network epn=new Network();
         
         epn.setName("Test");
         epn.setRootNodeName("N0");
@@ -46,31 +46,28 @@ public class NetworkUtilTest {
         ed1.setNode("N1");
         
         // Node 0
-        Node<TestEvent,TestEvent> n0=new Node<TestEvent,TestEvent>();
-        n0.setName("N0");
-        epn.getNodes().add(n0);
+        Node n0=new Node();
+        epn.getNodes().put("N0", n0);
         
         n0.getDestinations().add(ed1);
-        n0.setEventProcessor(new TestEventProcessor1<TestEvent,TestEvent>());
-        n0.setPredicate(new TestPredicate1<TestEvent>());    
+        n0.setEventProcessor(new TestEventProcessor1());
+        n0.setPredicate(new TestPredicate1());    
         
         // Node 1
-        Node<TestEvent,TestEvent> n1=new Node<TestEvent,TestEvent>();
-        n1.setName("N1");
-        epn.getNodes().add(n1);
+        Node n1=new Node();
+        epn.getNodes().put("N1", n1);
         
-        TestEventProcessor2<TestEvent,TestEvent> ep2=new TestEventProcessor2<TestEvent,TestEvent>();
+        TestEventProcessor2 ep2=new TestEventProcessor2();
         n1.setEventProcessor(ep2);
-        TestPredicate2<TestEvent> tp2=new TestPredicate2<TestEvent>();
+        TestPredicate2 tp2=new TestPredicate2();
         tp2.setSomeProperty("TestProperty");
         n1.setPredicate(tp2);
         
         // Node 2
-        Node<TestEvent,TestEvent> n2=new Node<TestEvent,TestEvent>();
-        n2.setName("N2");
-        epn.getNodes().add(n2);
+        Node n2=new Node();
+        epn.getNodes().put("N2", n2);
         
-        TestEventProcessor3<TestEvent,TestEvent> ep3=new TestEventProcessor3<TestEvent,TestEvent>();
+        TestEventProcessor3 ep3=new TestEventProcessor3();
         n2.setEventProcessor(ep3);
         
         try {
@@ -106,15 +103,15 @@ public class NetworkUtilTest {
             
             is.close();
             
-            Network<?> network=NetworkUtil.deserialize(b);
+            Network network=NetworkUtil.deserialize(b);
             
             if (network.getNodes().size() != 3) {
                 fail("Number of nodes not 3: "+network.getNodes().size());
             }
             
-            Node<?,?> n1=network.getNodes().get(0);
-            Node<?,?> n2=network.getNodes().get(1);
-            Node<?,?> n3=network.getNodes().get(2);
+            Node n1=network.getNodes().get("N0");
+            Node n2=network.getNodes().get("N1");
+            Node n3=network.getNodes().get("N2");
             
             if (n1.getPredicate() == null) {
                 fail("Predicate 1 should not be null");
@@ -161,7 +158,8 @@ public class NetworkUtilTest {
             }
             
         } catch(Exception e) {
-            fail("Failed to serialize: "+e);
+            e.printStackTrace();
+            fail("Failed to deserialize: "+e);
         }
 
     }

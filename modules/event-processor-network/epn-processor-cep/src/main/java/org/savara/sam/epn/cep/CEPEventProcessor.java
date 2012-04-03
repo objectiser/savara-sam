@@ -38,7 +38,7 @@ import org.savara.sam.epn.EventProcessor;
  * Processor.
  *
  */
-public class CEPEventProcessor<S,T> extends EventProcessor<S,T> {
+public class CEPEventProcessor extends EventProcessor {
 
     private static Logger LOG=Logger.getLogger(CEPEventProcessor.class.getName());
 
@@ -94,8 +94,8 @@ public class CEPEventProcessor<S,T> extends EventProcessor<S,T> {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public T process(String source, S event, int retriesLeft) throws Exception {
+    public java.io.Serializable process(String source,
+                java.io.Serializable event, int retriesLeft) throws Exception {
         
         _services.setResult(null);
         
@@ -116,7 +116,7 @@ public class CEPEventProcessor<S,T> extends EventProcessor<S,T> {
                     "' on CEP Event Processor '"+getRuleName()+"'");
         }
         
-        return (T)_services.getResult();
+        return (java.io.Serializable)_services.getResult();
     }
 
     /**

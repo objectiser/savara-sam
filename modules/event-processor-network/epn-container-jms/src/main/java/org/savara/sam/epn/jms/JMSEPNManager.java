@@ -19,9 +19,6 @@ package org.savara.sam.epn.jms;
 
 import static javax.ejb.ConcurrencyManagementType.BEAN;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,10 +36,12 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.savara.sam.epn.AbstractEPNManager;
+import org.savara.sam.epn.Channel;
 import org.savara.sam.epn.EPNContext;
 import org.savara.sam.epn.EPNManager;
 import org.savara.sam.epn.EventList;
 import org.savara.sam.epn.Network;
+import org.savara.sam.epn.RetryChannel;
 
 /**
  * This class provides the JMS implementation of
@@ -70,7 +69,9 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
     private Session _session=null;
     private MessageProducer _producer=null;
     
-    private EPNContext _context=null;
+    private java.util.Map<String, JMSChannel> _networkChannels=new java.util.HashMap<String, JMSChannel>();
+    
+    private EPNContext _context=new JMSEPNContext();
     
     private static final Logger LOG=Logger.getLogger(JMSEPNManager.class.getName());
 
@@ -78,25 +79,28 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
         return(_context);
     }
     
-    public void enqueue(String network, List<?> events) throws Exception {
+    public void register(Network network) throws Exception {
+        super.register(network);
         
+        _networkChannels.put(network.getName(), new JMSChannel(_session,
+                _producer, null, new org.savara.sam.epn.Destination(network.getName(),
+                        network.getRootNodeName())));
     }
 
-    /**
-     * This method dispatches a set of events directly to the named
-     * network and node. If the node is not specified, then it will
-     * be dispatched to the 'root' node of the network.
-     * 
-     * @param network The name of the network
-     * @param node The optional node name, or root node if not specified
-     * @param source The source node, or null if sending to root
-     * @param events The list of events to be processed
-     * @param retriesLeft The number of retries left
-     * @throws Exception Failed to dispatch the events for processing
-     */
-    protected void dispatch(String network, String node, String source, List<?> events,
-                            int retriesLeft) throws Exception {
+    public void unregister(String networkName) throws Exception {
+        super.unregister(networkName);
         
+        _networkChannels.remove(networkName);
+    }
+    
+    public void enqueue(String network, EventList events) throws Exception {
+        JMSChannel channel=_networkChannels.get(network);
+        
+        if (channel == null) {
+            throw new Exception("Unable to find channel for network '"+network+"'");
+        }
+        
+        channel.send(events);
     }
 
     public void onMessage(Message message) {
@@ -107,7 +111,7 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
             }
             
             try {
-                EventList<?> events=(EventList<?>)((ObjectMessage)message).getObject();
+                EventList events=(EventList)((ObjectMessage)message).getObject();
                 
                 String network=message.getStringProperty(JMSEPNManager.EPN_NETWORK);
                 String node=message.getStringProperty(JMSEPNManager.EPN_DESTINATION_NODE);
@@ -129,5 +133,24 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
         } catch(Exception e) {
             LOG.log(Level.SEVERE, "Failed to close JMS", e);
         }
+    }
+    
+    protected class JMSEPNContext implements EPNContext {
+
+        public Channel getChannel(String source,
+                org.savara.sam.epn.Destination dest) throws Exception {
+            return new JMSChannel(_session, _producer, source, dest);
+        }
+
+        public RetryChannel getRetryChannel(String source) throws Exception {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public void eventProcessingFailed(EventList events) {
+            // TODO Auto-generated method stub
+            
+        }
+        
     }
 }
