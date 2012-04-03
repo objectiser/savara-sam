@@ -34,7 +34,7 @@ public abstract class Predicate<T> {
      * @param context The container context
      * @throws Exception Failed to initialize the predicate
      */
-    public void init(NetworkContext context) throws Exception {
+    public void init(EPNContext context) throws Exception {
     }
     
     /**
@@ -52,7 +52,7 @@ public abstract class Predicate<T> {
      * @param context The container context
      * @throws Exception Failed to close the predicate
      */
-    protected void close(NetworkContext context) throws Exception {
+    protected void close(EPNContext context) throws Exception {
     }
     
 }

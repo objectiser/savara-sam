@@ -24,6 +24,7 @@ package org.savara.sam.epn;
 public class Network<S extends java.io.Serializable> {
 
     private String _name=null;
+    private String _rootNodeName=null;
     private java.util.List<Node<?,?>> _nodes=new java.util.Vector<Node<?,?>>();
     
     private Node<S,?> _root=null;
@@ -54,6 +55,24 @@ public class Network<S extends java.io.Serializable> {
     }
     
     /**
+     * This method returns the root node name.
+     * 
+     * @return The root node name
+     */
+    public String getRootNodeName() {
+        return (_rootNodeName);
+    }
+    
+    /**
+     * This method sets the root node name.
+     * 
+     * @param rootNodeName The root node name
+     */
+    public void setRootNodeName(String rootNodeName) {
+        _rootNodeName = rootNodeName;
+    }
+    
+    /**
      * This method returns the event processor nodes.
      * 
      * @return The event processor nodes
@@ -78,17 +97,17 @@ public class Network<S extends java.io.Serializable> {
      * @throws Exception Failed to initialize the network
      */
     @SuppressWarnings("unchecked")
-    protected void init(NetworkContext context) throws Exception {
+    protected void init(EPNContext context) throws Exception {
         for (Node<?,?> node : _nodes) {
             node.init(context);
             
-            if (node.getName().equals(getName())) {
+            if (node.getName().equals(getRootNodeName())) {
                 _root = (Node<S,?>)node;                
             }
         }
         
         if (_root == null) {
-            throw new Exception("Network does not contain a root node of name '"+getName()+"'");
+            throw new Exception("Network does not contain a root node of name '"+getRootNodeName()+"'");
         }
     }
     
@@ -96,11 +115,11 @@ public class Network<S extends java.io.Serializable> {
      * This method processes the supplied list of events against the root
      * event processor node associated with the network.
      * 
-     * @param context The event processor context
+     * @param context The context
      * @param events The list of events to be processed
      * @throws Exception Failed to process events, and should result in transaction rollback
      */
-    protected void process(EventContext context, EventList<S> events) throws Exception {
+    protected void process(EPNContext context, EventList<S> events) throws Exception {
  
         if (_root != null) {
             _root.process(context, null, events, _root.getMaxRetries());
@@ -113,7 +132,7 @@ public class Network<S extends java.io.Serializable> {
      * @param context The container context
      * @throws Exception Failed to close the network
      */
-    protected void close(NetworkContext context) throws Exception {
+    protected void close(EPNContext context) throws Exception {
         for (Node<?,?> node : _nodes) {
             node.close(context);
         }

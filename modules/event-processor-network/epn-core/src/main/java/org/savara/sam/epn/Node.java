@@ -166,10 +166,10 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
     /**
      * This method initializes the node.
      * 
-     * @param context The container context
+     * @param context The context
      * @throws Exception Failed to initialize the node
      */
-    protected void init(NetworkContext context) throws Exception {
+    protected void init(EPNContext context) throws Exception {
         
         // Obtain the channels associated with the specified destinations
         if (_destinations != null) {
@@ -197,13 +197,13 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * which transformed events should be forwarded, and which need
      * to be returned to be retried.
      * 
-     * @param context The event processor context
+     * @param context The context
      * @param source The source event processor node that generated the event
      * @param events The list of events to be processed
      * @param retriesLeft The number of remaining retries
      * @throws Exception Failed to process events, and should result in transaction rollback
      */
-    protected void process(EventContext context, String source,
+    protected void process(EPNContext context, String source,
                       EventList<S> events, int retriesLeft) throws Exception {
         EventList<S> retries=null;
         EventList<T> results=new EventList<T>();
@@ -243,11 +243,11 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * This method forwards the results to any destinations that have been
      * defined.
      * 
-     * @param context The event processor context
+     * @param context The context
      * @param results The results
      * @throws Exception Failed to forward results
      */
-    protected void forward(EventContext context, EventList<T> results) throws Exception {
+    protected void forward(EPNContext context, EventList<T> results) throws Exception {
         
         for (Channel ch : _channels) {
             ch.send(getName(), results);
@@ -258,12 +258,12 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * This method forwards the results to any destinations that have been
      * defined.
      * 
-     * @param context The event processor context
+     * @param context The context
      * @param events The events
      * @param retriesLeft The number of retries left
      * @throws Exception Failed to forward results
      */
-    protected void retry(EventContext context, EventList<S> events, int retriesLeft) throws Exception {
+    protected void retry(EPNContext context, EventList<S> events, int retriesLeft) throws Exception {
         
         if (_retryChannel != null && retriesLeft > 0) {
             _retryChannel.send(events, retriesLeft-1);
@@ -278,7 +278,7 @@ public class Node<S extends java.io.Serializable,T extends java.io.Serializable>
      * @param context The container context
      * @throws Exception Failed to close the node
      */
-    protected void close(NetworkContext context) throws Exception {
+    protected void close(EPNContext context) throws Exception {
         
         for (Channel ch : _channels) {
             ch.close();

@@ -1,9 +1,10 @@
 {
   "name" : "Test",
   "nodes" : [ {
-    "name" : "Test",
+    "name" : "N0",
     "destinations" : [ {
-      "name" : "N1"
+      "network" : "Test",
+      "node" : "N1"
     } ],
     "predicate" : {
       "@class" : "org.savara.sam.epn.testdata.TestPredicate1"
@@ -34,5 +35,6 @@
     },
     "maxRetries" : 3,
     "retryInterval" : 0
-  } ]
+  } ],
+  "rootNodeName" : "N0"
 }

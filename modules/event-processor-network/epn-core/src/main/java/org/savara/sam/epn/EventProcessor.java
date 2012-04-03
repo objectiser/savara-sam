@@ -34,7 +34,7 @@ public abstract class EventProcessor<S,T> {
      * @param context The container context
      * @throws Exception Failed to initialize
      */
-    public void init(NetworkContext context) throws Exception {
+    public void init(EPNContext context) throws Exception {
     }
     
     /**
@@ -60,7 +60,7 @@ public abstract class EventProcessor<S,T> {
      * @param context The container context
      * @throws Exception Failed to close
      */
-    public void close(NetworkContext context) throws Exception {
+    public void close(EPNContext context) throws Exception {
     }
 
 }

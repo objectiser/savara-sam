@@ -38,19 +38,21 @@ public class NetworkUtilTest {
         Network<TestEvent> epn=new Network<TestEvent>();
         
         epn.setName("Test");
+        epn.setRootNodeName("N0");
         
         // Event destinations
         Destination ed1=new Destination();
-        ed1.setName("N1");
+        ed1.setNetwork("Test");
+        ed1.setNode("N1");
         
         // Node 0
         Node<TestEvent,TestEvent> n0=new Node<TestEvent,TestEvent>();
-        n0.setName("Test");
+        n0.setName("N0");
         epn.getNodes().add(n0);
         
         n0.getDestinations().add(ed1);
         n0.setEventProcessor(new TestEventProcessor1<TestEvent,TestEvent>());
-        n0.setPredicate(new TestPredicate1<TestEvent>());
+        n0.setPredicate(new TestPredicate1<TestEvent>());    
         
         // Node 1
         Node<TestEvent,TestEvent> n1=new Node<TestEvent,TestEvent>();

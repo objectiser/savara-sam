@@ -18,34 +18,44 @@
 package org.savara.sam.epn;
 
 /**
- * This interface provides the context in which the network will be
- * initialized. The context will be implemented by a container
- * implementation.
+ * This interfaces represents the Event Process Network
+ * Manager.
  *
  */
-public interface NetworkContext {
+public interface EPNManager {
 
     /**
-     * This method returns the channel associated with the supplied
-     * destination. If a channel cannot be established for any
-     * reason, then an exception will be thrown indicating the
-     * problem.
+     * This method registers a network.
      * 
-     * @param dest The destination
-     * @return The channel
-     * @throws Exception Channel cannot be created
+     * @param network The network
+     * @throws Exception Failed to register the network
      */
-    public Channel getChannel(Destination dest) throws Exception;
-
+    public void register(Network<?> network) throws Exception;
+    
     /**
-     * This method returns a retry channel associated with the
-     * supplied node. This channel is used to retry a set of
-     * events that fail the event processing stage.
+     * This method unregisters a network.
      * 
-     * @param node The node
-     * @return The retry channel
-     * @throws Exception Retry channel cannot be created
+     * @param network The network
+     * @throws Exception Failed to unregister the network
      */
-    public RetryChannel getRetryChannel(Node<?,?> node) throws Exception;
+    public void unregister(Network<?> network) throws Exception;
+    
+    /**
+     * This method queues up the supplied events to be processed
+     * by the specified network.
+     * 
+     * @param network The name of the network
+     * @param events The list of events to be processed
+     * @throws Exception Failed to enqueue the events
+     */
+    public void enqueue(String network,
+                        java.util.List<?> events) throws Exception;
+    
+    /**
+     * This method closes the manager.
+     * 
+     * @throws Exception Failed to close manager
+     */
+    public void close() throws Exception;
     
 }

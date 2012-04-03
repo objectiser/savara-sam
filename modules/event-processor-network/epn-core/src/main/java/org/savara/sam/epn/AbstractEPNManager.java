@@ -17,56 +17,28 @@
  */
 package org.savara.sam.epn;
 
-/**
- * This interface represents a destination for sending a
- * list of events.
- *
- */
-public class Destination {
-    
-    private String _network=null;
-    private String _node=null;
 
-    /**
-     * This is the default constructor.
-     */
-    public Destination() {
-    }
+public abstract class AbstractEPNManager implements EPNManager {
+
+    private java.util.Map<String, Network<?>> _networkMap=new java.util.HashMap<String, Network<?>>();
     
-    /**
-     * This method returns the network destination.
-     * 
-     * @return The network
-     */
-    public String getNetwork() {
-        return (_network);
-    }
+    protected abstract EPNContext getContext();
     
-    /**
-     * This method sets the network destination.
-     * 
-     * @param network The network
-     */
-    public void setNetwork(String network) {
-        _network = network;
+    public void register(Network<?> network) throws Exception {
+        _networkMap.put(network.getName(), network);
+        
+        network.init(getContext());
     }
 
-    /**
-     * This method returns the node destination.
-     * 
-     * @return The node
-     */
-    public String getNode() {
-        return (_node);
+    public void unregister(Network<?> network) throws Exception {
+        _networkMap.remove(network.getName());
     }
     
-    /**
-     * This method sets the node destination.
-     * 
-     * @param node The node
-     */
-    public void setNode(String node) {
-        _node = node;
+    protected Network<?> getNetwork(String name) {
+        return (_networkMap.get(name));
+    }
+
+    public void close() throws Exception {
     }
 
 }

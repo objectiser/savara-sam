@@ -18,12 +18,36 @@
 package org.savara.sam.epn;
 
 /**
- * This interface provides the context in which the events will be
- * processed.
+ * This interface provides the context in which the network will be
+ * initialized. The context will be implemented by a container
+ * implementation.
  *
  */
-public interface EventContext {
+public interface EPNContext {
 
+    /**
+     * This method returns the channel associated with the supplied
+     * destination. If a channel cannot be established for any
+     * reason, then an exception will be thrown indicating the
+     * problem.
+     * 
+     * @param dest The destination
+     * @return The channel
+     * @throws Exception Channel cannot be created
+     */
+    public Channel getChannel(Destination dest) throws Exception;
+
+    /**
+     * This method returns a retry channel associated with the
+     * supplied node. This channel is used to retry a set of
+     * events that fail the event processing stage.
+     * 
+     * @param node The node
+     * @return The retry channel
+     * @throws Exception Retry channel cannot be created
+     */
+    public RetryChannel getRetryChannel(Node<?,?> node) throws Exception;
+    
     /**
      * This method indicates that the supplied set of events failed
      * to be processed after the configured number of retries.

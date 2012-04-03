@@ -17,50 +17,57 @@
  */
 package org.savara.sam.epn.jms;
 
-import org.savara.sam.epn.EventDestination;
+import org.savara.sam.epn.Channel;
+import org.savara.sam.epn.Destination;
 import org.savara.sam.epn.EventList;
-import org.savara.sam.epn.EventProcessorNode;
 
 /**
  * This class represents a JMS implementation of the event destination
  * for sending a list of events.
  *
  */
-public class JMSEventDestination implements EventDestination {
+public class JMSChannel implements Channel {
     
     private javax.jms.Session _session=null;
     private javax.jms.MessageProducer _producer=null;
+    private Destination _destination=null;
 
     /**
-     * This is the constructor for the JMS event destination.
+     * This is the constructor for the JMS channel.
      * 
      * @param session The session
      * @param producer The producer
+     * @param destination The node destination
      */
-    public JMSEventDestination(javax.jms.Session session, javax.jms.MessageProducer producer) {
+    public JMSChannel(javax.jms.Session session, javax.jms.MessageProducer producer,
+                            Destination dest) {
         _session = session;
         _producer = producer;
+        _destination = dest;
     }
     
     /**
-     * This method sends the supplied events to a destination.
+     * This method sends the supplied events to a channel.
      * 
-     * @param source The source
+     * @param source The source node within the network
      * @param events The events
      * @throws Exception Failed to send the events
      */
     public void send(String source, EventList<?> events) throws Exception {
         javax.jms.ObjectMessage mesg=_session.createObjectMessage(events);
-        mesg.setStringProperty(EventProcessorNode.EPN_NAME, source);
+        mesg.setStringProperty(JMSEPNManager.EPN_NETWORK, _destination.getNetwork());
+        mesg.setStringProperty(JMSEPNManager.EPN_DESTINATION_NODE, _destination.getNode());
+        mesg.setStringProperty(JMSEPNManager.EPN_SOURCE_NODE, source);
+        mesg.setIntProperty(JMSEPNManager.EPN_RETRIES_LEFT, -1);
         _producer.send(mesg);
     }
  
     /**
-     * This method closes the JMS event destination.
+     * This method closes the JMS channel.
      * 
      * @throws Exception Failed to close
      */
     public void close() throws Exception {
-        _producer.close();
+        // Creator is responsible for closing JMS session
     }
 }
