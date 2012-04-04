@@ -24,6 +24,7 @@ package org.savara.sam.epn;
 public class Network {
 
     private String _name=null;
+    private long _timestamp=0;
     private String _rootNodeName=null;
     private java.util.Map<String,Node> _nodes=new java.util.HashMap<String,Node>();
     
@@ -52,6 +53,24 @@ public class Network {
      */
     public void setName(String name) {
         _name = name;
+    }
+    
+    /**
+     * This method returns the timestamp associated with the network.
+     * 
+     * @return The timestamp
+     */
+    public long getTimestamp() {
+        return (_timestamp);
+    }
+    
+    /**
+     * This method sets the timestamp associated with the network.
+     * 
+     * @param timestamp The timestamp
+     */
+    public void setTimestamp(long timestamp) {
+        _timestamp = timestamp;
     }
     
     /**

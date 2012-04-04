@@ -22,8 +22,7 @@ import org.savara.sam.epn.EventProcessor;
 public class TestEventProcessor1 extends EventProcessor {
 
     public java.io.Serializable process(String source, java.io.Serializable event, int retriesLeft) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        return (new TestEvent2(((TestEvent1)event).getValue()));
     }
 
 }

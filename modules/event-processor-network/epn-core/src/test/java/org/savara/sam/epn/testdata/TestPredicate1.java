@@ -22,7 +22,12 @@ import org.savara.sam.epn.Predicate;
 public class TestPredicate1 extends Predicate {
 
     public boolean apply(Object arg0) {
-        // TODO Auto-generated method stub
+        if (arg0 instanceof TestEvent1) {
+            TestEvent1 te=(TestEvent1)arg0;
+            
+            return te.getValue() >= 10;
+         }
+        
         return false;
     }
 

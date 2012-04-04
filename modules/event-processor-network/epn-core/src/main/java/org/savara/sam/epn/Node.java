@@ -37,7 +37,6 @@ public class Node {
     private java.util.List<Destination> _destinations=new java.util.Vector<Destination>();
     
     private java.util.List<Channel> _channels=new java.util.Vector<Channel>();
-    private RetryChannel _retryChannel=null;
     
     /**
      * The default constructor for the event processor node.
@@ -160,8 +159,6 @@ public class Node {
             }
         }
         
-        _retryChannel = context.getRetryChannel(nodeName);
-        
         if (getPredicate() != null) {
             getPredicate().init(context);
         }
@@ -183,9 +180,10 @@ public class Node {
      * @param source The source node that generated the event
      * @param events The list of events to be processed
      * @param retriesLeft The number of remaining retries
+     * @return The events to retry, or null if no retries necessary
      * @throws Exception Failed to process events, and should result in transaction rollback
      */
-    protected void process(EPNContext context, String source,
+    protected EventList process(EPNContext context, String source,
                       EventList events, int retriesLeft) throws Exception {
         EventList retries=null;
         EventList results=new EventList();
@@ -216,9 +214,7 @@ public class Node {
             forward(context, results);
         }
         
-        if (retries != null) {
-            retry(context, retries, retriesLeft);
-        }
+        return (retries);
     }
     
     /**
@@ -237,24 +233,6 @@ public class Node {
     }
 
     /**
-     * This method forwards the results to any destinations that have been
-     * defined.
-     * 
-     * @param context The context
-     * @param events The events
-     * @param retriesLeft The number of retries left
-     * @throws Exception Failed to forward results
-     */
-    protected void retry(EPNContext context, EventList events, int retriesLeft) throws Exception {
-        
-        if (_retryChannel != null && retriesLeft > 0) {
-            _retryChannel.send(events, retriesLeft-1);
-        } else {
-            context.eventProcessingFailed(events);
-        }
-    }
-
-    /**
      * This method closes the node.
      * 
      * @param context The container context
@@ -265,10 +243,6 @@ public class Node {
         
         for (Channel ch : _channels) {
             ch.close();
-        }
-        
-        if (_retryChannel != null) {
-            _retryChannel.close();
         }
         
         if (getPredicate() != null) {

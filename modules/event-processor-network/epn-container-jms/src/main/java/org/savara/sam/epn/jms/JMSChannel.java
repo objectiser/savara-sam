@@ -50,11 +50,7 @@ public class JMSChannel implements Channel {
     }
     
     /**
-     * This method sends the supplied events to a channel.
-     * 
-     * @param source The source node within the network
-     * @param events The events
-     * @throws Exception Failed to send the events
+     * {@inheritDoc}
      */
     public void send(EventList events) throws Exception {
         javax.jms.ObjectMessage mesg=_session.createObjectMessage(events);
@@ -73,4 +69,5 @@ public class JMSChannel implements Channel {
     public void close() throws Exception {
         // Creator is responsible for closing JMS session
     }
+
 }

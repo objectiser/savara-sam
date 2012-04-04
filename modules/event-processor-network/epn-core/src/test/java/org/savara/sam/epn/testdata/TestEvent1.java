@@ -17,8 +17,21 @@
  */
 package org.savara.sam.epn.testdata;
 
-public class TestEvent implements java.io.Serializable {
+public class TestEvent1 implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private int _value=0;
+    
+    public TestEvent1(int value) {
+        _value = value;
+    }
+    
+    public void setValue(int value) {
+        _value = value;
+    }
+    
+    public int getValue() {
+        return (_value);
+    }
 }

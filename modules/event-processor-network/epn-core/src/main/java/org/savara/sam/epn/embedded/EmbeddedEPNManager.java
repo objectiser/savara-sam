@@ -17,15 +17,19 @@
  */
 package org.savara.sam.epn.embedded;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.savara.sam.epn.AbstractEPNManager;
+import org.savara.sam.epn.Channel;
+import org.savara.sam.epn.Destination;
 import org.savara.sam.epn.EPNContext;
-import org.savara.sam.epn.EPNManager;
 import org.savara.sam.epn.EventList;
 import org.savara.sam.epn.Network;
+import org.savara.sam.epn.Node;
 
 /**
  * This class provides the embedded implementation of
@@ -34,45 +38,118 @@ import org.savara.sam.epn.Network;
  */
 public class EmbeddedEPNManager extends AbstractEPNManager {
     
+    private static final Logger LOG=Logger.getLogger(EmbeddedEPNManager.class.getName());
+    
     private static final int MAX_THREADS = 10;
 
     private ExecutorService _executor=Executors.newFixedThreadPool(MAX_THREADS);
-    private EPNContext _context=null;
+    private EPNContext _context=new EmbeddedEPNContext();
+    
+    private java.util.Map<String,Channel> _entryPoints=new java.util.HashMap<String,Channel>();
     
     protected EPNContext getContext() {
         return(_context);
     }
     
-    public void enqueue(String network, EventList events) throws Exception {
+    public void register(Network network) throws Exception {
+        super.register(network);
         
+        Node rootNode=network.getNodes().get(network.getRootNodeName());
+        
+        _entryPoints.put(network.getName(), new EmbeddedChannel(rootNode, null));
     }
 
-    public void dispatch(String network, String node, List<?> events)
-            throws Exception {
-        // TODO Auto-generated method stub
+    public void unregister(String networkName) throws Exception {
+        super.unregister(networkName);
         
+        _entryPoints.remove(networkName);
+    }
+
+    public void enqueue(String network, EventList events) throws Exception {
+        Channel channel=_entryPoints.get(network);
+        
+        if (channel == null) {
+            throw new Exception("No channel for network '"+network+"'");
+        }
+        
+        channel.send(events);
     }
 
     public void close() throws Exception {
-        // TODO Auto-generated method stub
+        // TODO: Should be configurable??
+        _executor.awaitTermination(5, TimeUnit.SECONDS);
+    }
+    
+    protected class EmbeddedEPNContext implements EPNContext {
+
+        public Channel getChannel(String source, Destination dest)
+                throws Exception {
+            return (new EmbeddedChannel(getNode(dest.getNetwork(),dest.getNode()), source));
+        }
+        
+    }
+    
+    protected class EmbeddedChannel implements Channel {
+        
+        private Node _node=null;
+        private String _source=null;
+        
+        public EmbeddedChannel(Node node, String source) {
+            _node = node;
+            _source = source;
+        }
+
+        public void send(EventList events) throws Exception {
+            send(events, _node.getMaxRetries());
+        }
+
+        public void send(EventList events, int retriesLeft) throws Exception {
+            _executor.execute(new EPNTask(_node, _source, events, retriesLeft, this));
+        }
+
+        public void close() throws Exception {
+        }
         
     }
 
     protected class EPNTask implements Runnable {
         
-        private String _network=null;
-        private String _node=null;
-        private List<?> _events=null;
+        private Node _node=null;
+        private String _source=null;
+        private EventList _events=null;
+        private int _retriesLeft=0;
+        private Channel _channel=null;
         
-        public EPNTask(String network, String node, List<?> events) {
-            _network = network;
+        public EPNTask(Node node, String source, EventList events, int retriesLeft, Channel channel) {
             _node = node;
+            _source = source;
             _events = events;
+            _retriesLeft = retriesLeft;
+            _channel = channel;
         }
 
         public void run() {
-            // TODO Auto-generated method stub
-            
+            EventList retries=null;
+     
+            try {
+                retries = process(_node, _source, _events, _retriesLeft);            
+            } catch(Exception e) {
+                LOG.log(Level.SEVERE, "Failed to handle events", e);
+                
+                retries = _events;
+            }
+
+            if (retries != null) {
+                if (_retriesLeft > 0) {
+                    try {
+                        _channel.send(retries, _retriesLeft-1);
+                    } catch(Exception e) {
+                        LOG.log(Level.SEVERE, "Failed to retry events", e);
+                    }
+                } else {
+                    // TODO: No more retries
+                }
+            }
         }
         
     }

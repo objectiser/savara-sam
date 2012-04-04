@@ -38,23 +38,4 @@ public interface EPNContext {
      */
     public Channel getChannel(String source, Destination dest) throws Exception;
 
-    /**
-     * This method returns a retry channel associated with the
-     * supplied node. This channel is used to retry a set of
-     * events that fail the event processing stage.
-     * 
-     * @param source The source node
-     * @return The retry channel
-     * @throws Exception Retry channel cannot be created
-     */
-    public RetryChannel getRetryChannel(String source) throws Exception;
-    
-    /**
-     * This method indicates that the supplied set of events failed
-     * to be processed after the configured number of retries.
-     * 
-     * @param events The set of events that failed processing
-     */
-    public void eventProcessingFailed(EventList events);
-    
 }

@@ -38,20 +38,7 @@ public abstract class AbstractEPNManager implements EPNManager {
         return (_networkMap.get(name));
     }
 
-    /**
-     * This method dispatches a set of events directly to the named
-     * network and node. If the node is not specified, then it will
-     * be dispatched to the 'root' node of the network.
-     * 
-     * @param networkName The name of the network
-     * @param nodeName The optional node name, or root node if not specified
-     * @param source The source node, or null if sending to root
-     * @param events The list of events to be processed
-     * @param retriesLeft The number of retries left
-     * @throws Exception Failed to dispatch the events for processing
-     */
-    protected void dispatch(String networkName, String nodeName, String source, EventList events,
-                            int retriesLeft) throws Exception {
+    protected Node getNode(String networkName, String nodeName) throws Exception {
         Network net=getNetwork(networkName);
         
         if (net == null) {
@@ -64,7 +51,23 @@ public abstract class AbstractEPNManager implements EPNManager {
             throw new Exception("No node '"+nodeName+"' was found in network '"+networkName+"'");
         }
         
-        node.process(getContext(), source, events, retriesLeft);
+        return (node);
+    }
+
+    /**
+     * This method dispatches a set of events directly to the supplied
+     * node.
+     * 
+     * @param node The node
+     * @param source The source node, or null if sending to root
+     * @param events The list of events to be processed
+     * @param retriesLeft The number of retries left
+     * @return The events to retry, or null if no retries necessary
+     * @throws Exception Failed to dispatch the events for processing
+     */
+    protected EventList process(Node node, String source, EventList events,
+                            int retriesLeft) throws Exception {
+        return(node.process(getContext(), source, events, retriesLeft));
     }
 
     public void close() throws Exception {

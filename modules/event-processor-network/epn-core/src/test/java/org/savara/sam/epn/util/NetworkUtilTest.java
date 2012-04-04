@@ -38,6 +38,7 @@ public class NetworkUtilTest {
         Network epn=new Network();
         
         epn.setName("Test");
+        epn.setTimestamp(123456);
         epn.setRootNodeName("N0");
         
         // Event destinations
@@ -45,11 +46,16 @@ public class NetworkUtilTest {
         ed1.setNetwork("Test");
         ed1.setNode("N1");
         
+        Destination ed2=new Destination();
+        ed2.setNetwork("Test");
+        ed2.setNode("N2");
+        
         // Node 0
         Node n0=new Node();
         epn.getNodes().put("N0", n0);
         
         n0.getDestinations().add(ed1);
+        n0.getDestinations().add(ed2);
         n0.setEventProcessor(new TestEventProcessor1());
         n0.setPredicate(new TestPredicate1());    
         

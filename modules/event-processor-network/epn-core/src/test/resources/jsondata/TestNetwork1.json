@@ -17,6 +17,9 @@
       "destinations" : [ {
         "network" : "Test",
         "node" : "N1"
+      }, {
+        "network" : "Test",
+        "node" : "N2"
       } ],
       "predicate" : {
         "@class" : "org.savara.sam.epn.testdata.TestPredicate1"
@@ -37,5 +40,6 @@
       "retryInterval" : 0
     }
   },
+  "timestamp" : 123456,
   "rootNodeName" : "N0"
 }

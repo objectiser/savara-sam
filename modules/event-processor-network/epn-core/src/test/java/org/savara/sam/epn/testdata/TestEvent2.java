@@ -15,35 +15,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.savara.sam.epn;
+package org.savara.sam.epn.testdata;
 
-/**
- * This interface provides the channel through which a
- * set of events will be retried.
- *
- */
-public interface RetryChannel {
+public class TestEvent2 implements java.io.Serializable {
 
-    /**
-     * This method sends the supplied events, for
-     * retry against the same node, indicating how
-     * many remaining retry attempts are left. This
-     * value will have been decremented by the node,
-     * before calling this method, and therefore the
-     * number should be carried (as is) with the set
-     * of events, and re-presented to the node.
-     * 
-     * @param events The events
-     * @param retriesRemaining The number of retries remaining
-     * @throws Exception Failed to send the events
-     */
-    public void send(EventList events, int retriesRemaining) throws Exception;
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * This method closes the channel.
-     * 
-     * @throws Exception Failed to close the channel
-     */
-    public void close() throws Exception;
+    private int _value=0;
     
+    public TestEvent2(int value) {
+        _value = value;
+    }
+    
+    public void setValue(int value) {
+        _value = value;
+    }
+    
+    public int getValue() {
+        return (_value);
+    }
 }

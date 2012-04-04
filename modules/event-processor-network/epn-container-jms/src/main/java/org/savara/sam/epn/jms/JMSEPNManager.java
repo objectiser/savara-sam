@@ -41,7 +41,7 @@ import org.savara.sam.epn.EPNContext;
 import org.savara.sam.epn.EPNManager;
 import org.savara.sam.epn.EventList;
 import org.savara.sam.epn.Network;
-import org.savara.sam.epn.RetryChannel;
+import org.savara.sam.epn.Node;
 
 /**
  * This class provides the JMS implementation of
@@ -126,6 +126,55 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
         }
     }
 
+    /**
+     * This method dispatches a set of events directly to the named
+     * network and node. If the node is not specified, then it will
+     * be dispatched to the 'root' node of the network.
+     * 
+     * @param networkName The name of the network
+     * @param nodeName The optional node name, or root node if not specified
+     * @param source The source node, or null if sending to root
+     * @param events The list of events to be processed
+     * @param retriesLeft The number of retries left
+     * @throws Exception Failed to dispatch the events for processing
+     */
+    protected void dispatch(String networkName, String nodeName, String source, EventList events,
+                            int retriesLeft) throws Exception {
+        Node node=getNode(networkName, nodeName);
+        
+        EventList retries=process(node, source, events, retriesLeft);
+        
+        if (retries != null) {
+            retry(networkName, nodeName, source, events, retriesLeft-1);
+        }
+    }
+    
+    /**
+     * This method handles retrying the supplied set of events, if the number of
+     * retries left is greater than 0.
+     * 
+     * @param networkName The name of the network
+     * @param nodeName The optional node name, or root node if not specified
+     * @param source The source
+     * @param events The events
+     * @param retriesLeft The number of retries now remaining after this failure to process them
+     * @throws Exception Failed to retry the events processing
+     */
+    protected void retry(String networkName, String nodeName, 
+            String source, EventList events, int retriesLeft) throws Exception {
+        
+        if (retriesLeft > 0) {
+            javax.jms.ObjectMessage mesg=_session.createObjectMessage(events);
+            mesg.setStringProperty(JMSEPNManager.EPN_NETWORK, networkName);
+            mesg.setStringProperty(JMSEPNManager.EPN_DESTINATION_NODE, nodeName);
+            mesg.setStringProperty(JMSEPNManager.EPN_SOURCE_NODE, source);
+            mesg.setIntProperty(JMSEPNManager.EPN_RETRIES_LEFT, retriesLeft);
+            _producer.send(mesg);
+        } else {
+            // Events failed to be processed
+        }
+    }
+    
     public void close() throws Exception {
         try {
             _session.close();
@@ -142,15 +191,5 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
             return new JMSChannel(_session, _producer, source, dest);
         }
 
-        public RetryChannel getRetryChannel(String source) throws Exception {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        public void eventProcessingFailed(EventList events) {
-            // TODO Auto-generated method stub
-            
-        }
-        
     }
 }
