@@ -17,28 +17,21 @@
  */
 package org.savara.bam.epn.testdata;
 
-import org.savara.bam.epn.Predicate;
+import org.savara.bam.epn.Channel;
+import org.savara.bam.epn.Destination;
+import org.savara.bam.epn.EPNContext;
 
-public class TestPredicate2 extends Predicate {
-
-    private String _someProperty=null;
+public class TestEPNContext implements EPNContext {
     
-    public String getSomeProperty() {
-        return(_someProperty);
+    private Channel _channel;
+
+    public TestEPNContext(TestChannel ch) {
+        _channel = ch;
     }
     
-    public void setSomeProperty(String prop) {
-        _someProperty = prop;
+    public Channel getChannel(String source, Destination dest)
+            throws Exception {
+        return _channel;
     }
     
-    public boolean apply(Object arg0) {
-        if (arg0 instanceof TestEvent2) {
-            TestEvent2 te=(TestEvent2)arg0;
-            
-            return te.getValue() >= 20;
-         }
-        
-        return false;
-    }
-
 }

@@ -17,28 +17,37 @@
  */
 package org.savara.bam.epn.testdata;
 
-import org.savara.bam.epn.Predicate;
+import java.io.Serializable;
 
-public class TestPredicate2 extends Predicate {
+import org.savara.bam.epn.EventProcessor;
 
-    private String _someProperty=null;
+public class TestEventProcessorA extends EventProcessor {
+
+    private java.util.List<Serializable> _events=new java.util.Vector<Serializable>();
+    private java.util.List<Serializable> _retries=new java.util.Vector<Serializable>();
+    private boolean _forwardEvents=false;
     
-    public String getSomeProperty() {
-        return(_someProperty);
+    public void setForwardEvents(boolean b) {
+        _forwardEvents = b;
     }
     
-    public void setSomeProperty(String prop) {
-        _someProperty = prop;
+    public void retry(Serializable event) {
+        _retries.add(event);
     }
     
-    public boolean apply(Object arg0) {
-        if (arg0 instanceof TestEvent2) {
-            TestEvent2 te=(TestEvent2)arg0;
-            
-            return te.getValue() >= 20;
-         }
-        
-        return false;
-    }
+    public Serializable process(String source, Serializable event,
+            int retriesLeft) throws Exception {
+        if (_retries.contains(event)) {
+            _retries.remove(event);
+            throw new Exception("Please retry this event");
+        }
 
+        _events.add(event);
+
+        return _forwardEvents ? event : null;
+    }
+    
+    public java.util.List<Serializable> getEvents() {
+        return(_events);
+    }
 }

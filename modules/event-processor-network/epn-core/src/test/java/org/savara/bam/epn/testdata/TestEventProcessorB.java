@@ -17,28 +17,12 @@
  */
 package org.savara.bam.epn.testdata;
 
-import org.savara.bam.epn.Predicate;
+import org.savara.bam.epn.EventProcessor;
 
-public class TestPredicate2 extends Predicate {
+public class TestEventProcessorB extends EventProcessor {
 
-    private String _someProperty=null;
-    
-    public String getSomeProperty() {
-        return(_someProperty);
-    }
-    
-    public void setSomeProperty(String prop) {
-        _someProperty = prop;
-    }
-    
-    public boolean apply(Object arg0) {
-        if (arg0 instanceof TestEvent2) {
-            TestEvent2 te=(TestEvent2)arg0;
-            
-            return te.getValue() >= 20;
-         }
-        
-        return false;
+    public java.io.Serializable process(String source, java.io.Serializable event, int retriesLeft) throws Exception {
+        return (new TestEvent2(((TestEvent1)event).getValue()));
     }
 
 }

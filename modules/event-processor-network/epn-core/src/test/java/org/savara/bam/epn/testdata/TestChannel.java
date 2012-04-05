@@ -17,28 +17,28 @@
  */
 package org.savara.bam.epn.testdata;
 
-import org.savara.bam.epn.Predicate;
+import java.io.Serializable;
 
-public class TestPredicate2 extends Predicate {
+import org.savara.bam.epn.Channel;
+import org.savara.bam.epn.EventList;
 
-    private String _someProperty=null;
+public class TestChannel implements Channel {
     
-    public String getSomeProperty() {
-        return(_someProperty);
-    }
-    
-    public void setSomeProperty(String prop) {
-        _someProperty = prop;
-    }
-    
-    public boolean apply(Object arg0) {
-        if (arg0 instanceof TestEvent2) {
-            TestEvent2 te=(TestEvent2)arg0;
-            
-            return te.getValue() >= 20;
-         }
-        
-        return false;
+    private java.util.List<Serializable> _events=new java.util.Vector<Serializable>();        
+
+    public java.util.List<Serializable> getEvents() {
+        return(_events);
     }
 
+    public void send(EventList events) throws Exception {
+        _events.addAll(events);
+    }
+
+    public void send(EventList events, int retriesLeft) throws Exception {
+        _events.addAll(events);
+    }
+
+    public void close() throws Exception {
+    }
+    
 }
