@@ -22,9 +22,11 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.junit.Test;
-import org.savara.sam.activity.model.Activity;
-import org.savara.sam.activity.server.spi.ActivityNotifier;
-import org.savara.sam.activity.server.spi.ActivityStore;
+import org.savara.bam.activity.model.Activity;
+import org.savara.bam.activity.server.ActivityQuery;
+import org.savara.bam.activity.server.DefaultActivityServer;
+import org.savara.bam.activity.server.spi.ActivityNotifier;
+import org.savara.bam.activity.server.spi.ActivityStore;
 
 public class DefaultActivityServerTest {
 

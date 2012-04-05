@@ -1,23 +1,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.savara.sam.activity-management</groupId>
+	<groupId>org.savara.bam.activity-management</groupId>
 	<artifactId>activity-server</artifactId> 
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>Savara SAM::Modules::Activity Management::Activity Server</name>
+	<name>Savara BAM::Modules::Activity Management::Activity Server</name>
 
 	<parent>
-		<groupId>org.savara.sam</groupId>
+		<groupId>org.savara.bam</groupId>
 		<artifactId>activity-management</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.savara.sam.modules</groupId>
-			<artifactId>sam-activity-model</artifactId>
-			<version>${sam.version}</version>
+			<groupId>org.savara.bam.activity-management</groupId>
+			<artifactId>activity-model</artifactId>
+			<version>${bam.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.enterprise</groupId>

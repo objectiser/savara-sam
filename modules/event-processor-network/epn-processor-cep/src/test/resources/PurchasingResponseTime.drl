@@ -1,7 +1,7 @@
-import org.savara.sam.activity.model.Activity
-import org.savara.sam.activity.model.MessageExchange
+import org.savara.bam.activity.model.Activity
+import org.savara.bam.activity.model.MessageExchange
 
-global org.savara.sam.epn.cep.CEPServices services
+global org.savara.bam.epn.cep.CEPServices services
 
 declare Activity
     @role( event )
