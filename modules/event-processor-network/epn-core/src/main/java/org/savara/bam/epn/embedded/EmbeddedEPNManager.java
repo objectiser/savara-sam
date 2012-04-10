@@ -56,7 +56,8 @@ public class EmbeddedEPNManager extends AbstractEPNManager {
         
         Node rootNode=network.getNodes().get(network.getRootNodeName());
         
-        _entryPoints.put(network.getName(), new EmbeddedChannel(rootNode, null));
+        _entryPoints.put(network.getName(), new EmbeddedChannel(network.getName(),
+                network.getRootNodeName(), rootNode, null));
     }
 
     public void unregister(String networkName) throws Exception {
@@ -84,17 +85,22 @@ public class EmbeddedEPNManager extends AbstractEPNManager {
 
         public Channel getChannel(String source, Destination dest)
                 throws Exception {
-            return (new EmbeddedChannel(getNode(dest.getNetwork(),dest.getNode()), source));
+            return (new EmbeddedChannel(dest.getNetwork(), dest.getNode(),
+                        getNode(dest.getNetwork(),dest.getNode()), source));
         }
         
     }
     
     protected class EmbeddedChannel implements Channel {
         
+        private String _networkName=null;
+        private String _nodeName=null;
         private Node _node=null;
         private String _source=null;
         
-        public EmbeddedChannel(Node node, String source) {
+        public EmbeddedChannel(String networkName, String nodeName, Node node, String source) {
+            _networkName = networkName;
+            _nodeName = nodeName;
             _node = node;
             _source = source;
         }
@@ -104,7 +110,8 @@ public class EmbeddedEPNManager extends AbstractEPNManager {
         }
 
         public void send(EventList events, int retriesLeft) throws Exception {
-            _executor.execute(new EPNTask(_node, _source, events, retriesLeft, this));
+            _executor.execute(new EPNTask(_networkName, _nodeName,
+                        _node, _source, events, retriesLeft, this));
         }
 
         public void close() throws Exception {
@@ -114,13 +121,18 @@ public class EmbeddedEPNManager extends AbstractEPNManager {
 
     protected class EPNTask implements Runnable {
         
+        private String _networkName=null;
+        private String _nodeName=null;
         private Node _node=null;
         private String _source=null;
         private EventList _events=null;
         private int _retriesLeft=0;
         private Channel _channel=null;
         
-        public EPNTask(Node node, String source, EventList events, int retriesLeft, Channel channel) {
+        public EPNTask(String networkName, String nodeName, Node node,
+                String source, EventList events, int retriesLeft, Channel channel) {
+            _networkName = networkName;
+            _nodeName = nodeName;
             _node = node;
             _source = source;
             _events = events;
@@ -132,7 +144,8 @@ public class EmbeddedEPNManager extends AbstractEPNManager {
             EventList retries=null;
      
             try {
-                retries = process(_node, _source, _events, _retriesLeft);            
+                retries = process(_networkName, _nodeName, _node,
+                                _source, _events, _retriesLeft);            
             } catch(Exception e) {
                 LOG.log(Level.SEVERE, "Failed to handle events", e);
                 

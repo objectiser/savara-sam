@@ -41,6 +41,7 @@ import org.savara.bam.epn.EPNContext;
 import org.savara.bam.epn.EPNManager;
 import org.savara.bam.epn.Network;
 import org.savara.bam.epn.Node;
+import org.savara.bam.epn.NodeListener;
 import org.savara.bam.epn.internal.EventList;
 
 /**
@@ -59,6 +60,9 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
     
     @Resource(mappedName = "java:/queue/EPNServer")
     Destination _epnServerDestination;
+    
+    @Resource(mappedName = "java:/topic/EPNNotifications")
+    Destination _epnNotificationsDestination;
     
     public static final String EPN_NETWORK = "EPNNetwork";
     public static final String EPN_DESTINATION_NODE = "EPNDestinationNode";
@@ -146,7 +150,7 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
             retriesLeft = node.getMaxRetries();
         }
         
-        EventList retries=process(node, source, events, retriesLeft);
+        EventList retries=process(networkName, nodeName, node, source, events, retriesLeft);
         
         if (retries != null) {
             retry(networkName, nodeName, source, events, retriesLeft-1);
@@ -177,6 +181,15 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
         } else {
             // Events failed to be processed
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void notify(String networkName, String nodeName, EventList processed) {
+        
+        // TODO: Send to JMS topic
     }
     
     public void close() throws Exception {

@@ -17,18 +17,14 @@
  */
 package org.savara.bam.epn;
 
-import java.util.logging.Logger;
-
 import org.savara.bam.epn.internal.EventList;
 
 
 public abstract class AbstractEPNManager implements EPNManager {
 
-    private static final Logger LOG=Logger.getLogger(AbstractEPNManager.class.getName());
-    
     private java.util.Map<String, Network> _networkMap=new java.util.HashMap<String, Network>();
-    private java.util.Map<Node, java.util.List<NodeListener>> _nodeListeners=
-                        new java.util.HashMap<Node, java.util.List<NodeListener>>();
+    private java.util.List<NodeListener> _nodeListeners=
+                        new java.util.Vector<NodeListener>();
     
     protected abstract EPNContext getContext();
     
@@ -45,57 +41,15 @@ public abstract class AbstractEPNManager implements EPNManager {
     /**
      * {@inheritDoc}
      */
-    public boolean addNodeListener(String networkName, String nodeName, NodeListener l) {
-        boolean ret=false;
-        
-        try {
-            synchronized(_nodeListeners) {
-                Node node=getNode(networkName, nodeName);
-            
-                if (node != null) {
-                    java.util.List<NodeListener> nl=_nodeListeners.get(node);
-                    
-                    if (nl == null) {
-                        nl = new java.util.Vector<NodeListener>();
-                        _nodeListeners.put(node, nl);
-                    }
-                    
-                    nl.add(l);
-                    
-                    ret = true;
-                }
-            }
-        } catch(Exception e) {
-            LOG.fine("Failed to add node listener: "+e);
-        }
-        
-        return (ret);
+    public void addNodeListener(NodeListener l) {
+        _nodeListeners.add(l);
     }
     
     /**
      * {@inheritDoc}
      */
-    public void removeNodeListener(String networkName, String nodeName, NodeListener l) {
-
-        try {
-            synchronized(_nodeListeners) {
-                Node node=getNode(networkName, nodeName);
-            
-                if (node != null) {
-                    java.util.List<NodeListener> nl=_nodeListeners.get(node);
-                    
-                    if (nl != null) {
-                        nl.remove(l);
-                        
-                        if (nl.size() == 0) {
-                            _nodeListeners.remove(node);
-                        }
-                    }
-                }
-            }
-        } catch(Exception e) {
-            LOG.fine("Failed to add node listener: "+e);
-        }
+    public void removeNodeListener(NodeListener l) {
+        _nodeListeners.remove(l);
     }
     
     protected Network getNetwork(String name) {
@@ -122,6 +76,8 @@ public abstract class AbstractEPNManager implements EPNManager {
      * This method dispatches a set of events directly to the supplied
      * node.
      * 
+     * @param networkName The network name
+     * @param nodeName The node name
      * @param node The node
      * @param source The source node, or null if sending to root
      * @param events The list of events to be processed
@@ -129,14 +85,13 @@ public abstract class AbstractEPNManager implements EPNManager {
      * @return The events to retry, or null if no retries necessary
      * @throws Exception Failed to dispatch the events for processing
      */
-    protected EventList process(Node node, String source, EventList events,
+    protected EventList process(String networkName, String nodeName,
+                    Node node, String source, EventList events,
                             int retriesLeft) throws Exception {
         EventList ret=node.process(getContext(), source, events, retriesLeft);
         
-        // Notify any interested listeners of the events that were processed
-        java.util.List<NodeListener> l=_nodeListeners.get(node);
-        
-        if (l != null) {
+        if (node.getNotificationEnabled() &&
+                (ret == null || ret.size() < events.size())){ 
             EventList notify=null;
             
             if (ret != null) {
@@ -156,13 +111,25 @@ public abstract class AbstractEPNManager implements EPNManager {
             }
             
             if (notify != null) {
-                for (NodeListener nl : l) {
-                    nl.eventsProcessed(notify);
-                }
+                notify(networkName, nodeName, notify);
             }
         }
         
         return (ret);
+    }
+
+    /**
+     * This method sends a notification that the supplied list of events have
+     * been processed by the named network and node.
+     * 
+     * @param networkName The network name
+     * @param nodeName The node name
+     * @param processed The list of processed events
+     */
+    protected void notify(String networkName, String nodeName, EventList processed) {
+        for (NodeListener nl : _nodeListeners) {
+            nl.eventsProcessed(networkName, nodeName, processed);
+        }
     }
     
     public void close() throws Exception {

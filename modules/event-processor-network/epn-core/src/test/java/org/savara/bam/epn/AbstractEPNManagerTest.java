@@ -142,6 +142,7 @@ public class AbstractEPNManagerTest {
         
         Node n1=new Node();
         n1.setEventProcessor(tep);
+        n1.setNotificationEnabled(true);
         net.getNodes().put(N1, n1);
         
         AbstractEPNManager mgr=getManager();
@@ -151,9 +152,7 @@ public class AbstractEPNManagerTest {
             
             TestNodeListener nl=new TestNodeListener();
             
-            if (!mgr.addNodeListener(TEST_NETWORK, N1, nl)) {
-                fail("Failed to add node listener");
-            }
+            mgr.addNodeListener(nl);
             
             TestEvent1 te1=new TestEvent1(2);
             TestEvent2 te2=new TestEvent2(5);
@@ -164,7 +163,7 @@ public class AbstractEPNManagerTest {
             
             tep.retry(te2);
             
-            EventList retries=mgr.process(n1, null, el, 3);
+            EventList retries=mgr.process(TEST_NETWORK, N1, n1, null, el, 3);
             
             if (retries == null) {
                 fail("Retries is null");
@@ -178,40 +177,20 @@ public class AbstractEPNManagerTest {
                 fail("Retries did not contain te2");
             }
             
-            if (nl.getEvents().size() != 1) {
-                fail("Node listener should have 1 event: "+nl.getEvents().size());
+            if (nl.getEntries().size() != 1) {
+                fail("Node listener should have 1 processed event: "+nl.getEntries().size());
             }
             
-            if (!nl.getEvents().contains(te1)) {
-                fail("Event te1 should have been processed");
+            if (!nl.getEntries().get(0).getEvents().contains(te1)) {
+                fail("Processed Event te1 should have been processed");
             }
             
-        } catch(Exception e) {
-            fail("Failed with exception: "+e);
-        }
-    }
-
-    @Test
-    public void testRegisterNodeListenerMissingNode() {
-        Network net=new Network();
-        net.setName(TEST_NETWORK);
-        net.setRootNodeName(N1);
-        
-        TestEventProcessorA tep=new TestEventProcessorA();
-        
-        Node n1=new Node();
-        n1.setEventProcessor(tep);
-        net.getNodes().put(N1, n1);
-        
-        AbstractEPNManager mgr=getManager();
-        
-        try {
-            mgr.register(net);
+            if (!nl.getEntries().get(0).getNetwork().equals(TEST_NETWORK)) {
+                fail("Processed Event network name incorrect");
+            }           
             
-            TestNodeListener nl=new TestNodeListener();
-            
-            if (mgr.addNodeListener(TEST_NETWORK, "n2", nl)) {
-                fail("Should have failed to add node listener");
+            if (!nl.getEntries().get(0).getNode().equals(N1)) {
+                fail("Processed Event node name incorrect");
             }
             
         } catch(Exception e) {

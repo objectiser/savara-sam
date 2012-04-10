@@ -24,13 +24,37 @@ import org.savara.bam.epn.NodeListener;
 
 public class TestNodeListener implements NodeListener {
 
-    private java.util.List<Serializable> _events=new java.util.Vector<Serializable>();
+    private java.util.List<Entry> _entries=new java.util.Vector<Entry>();
     
-    public void eventsProcessed(List<Serializable> events) {
-        _events.addAll(events);
+    public void eventsProcessed(String network, String node, List<Serializable> events) {
+        _entries.add(new Entry(network, node, events));
     }
 
-    public java.util.List<Serializable> getEvents() {
-        return (_events);
+    public java.util.List<Entry> getEntries() {
+        return (_entries);
+    }
+    
+    public class Entry {
+        private String _network=null;
+        private String _node=null;
+        private List<Serializable> _events=null;
+        
+        public Entry(String network, String node, List<Serializable> events) {
+            _network = network;
+            _node = node;
+            _events = events;
+        }
+        
+        public String getNetwork() {
+            return(_network);
+        }
+        
+        public String getNode() {
+            return(_node);
+        }
+        
+        public List<Serializable> getEvents() {
+            return(_events);
+        }
     }
 }

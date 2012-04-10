@@ -29,6 +29,6 @@ public interface NodeListener {
      * 
      * @param events The events that have been processed
      */
-    public void eventsProcessed(java.util.List<java.io.Serializable> events);
+    public void eventsProcessed(String network, String node, java.util.List<java.io.Serializable> events);
     
 }

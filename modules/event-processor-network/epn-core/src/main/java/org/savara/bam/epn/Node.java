@@ -37,6 +37,7 @@ public class Node {
     private EventProcessor _eventProcessor=null;
     private Predicate _predicate=null;
     private java.util.List<Destination> _destinations=new java.util.Vector<Destination>();
+    private boolean _notificationEnabled=false;
     
     private java.util.List<Channel> _channels=new java.util.Vector<Channel>();
     
@@ -143,6 +144,26 @@ public class Node {
      */
     public void setPredicate(Predicate pred) {
         _predicate = pred;
+    }
+    
+    /**
+     * This method determines whether notifications are
+     * enabled.
+     * 
+     * @return Whether notifications are enabled
+     */
+    public boolean getNotificationEnabled() {
+        return (_notificationEnabled);
+    }
+    
+    /**
+     * This method sets whether notifications are
+     * enabled.
+     * 
+     * @param b Whether notifications are enabled
+     */
+    public void setNotificationEnabled(boolean b) {
+        _notificationEnabled = b;
     }
     
     /**
