@@ -15,30 +15,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.savara.bam.epn.testdata;
+package org.savara.bam.epn;
 
-import java.io.Serializable;
+/**
+ * This interface represents a listener interested in information
+ * about an Event Processor Network Node.
+ *
+ */
+public interface NodeListener {
 
-import org.savara.bam.epn.Channel;
-import org.savara.bam.epn.internal.EventList;
-
-public class TestChannel implements Channel {
-    
-    private java.util.List<Serializable> _events=new java.util.Vector<Serializable>();        
-
-    public java.util.List<Serializable> getEvents() {
-        return(_events);
-    }
-
-    public void send(EventList events) throws Exception {
-        _events.addAll(events);
-    }
-
-    public void send(EventList events, int retriesLeft) throws Exception {
-        _events.addAll(events);
-    }
-
-    public void close() throws Exception {
-    }
+    /**
+     * This method lists the events that have been processed.
+     * 
+     * @param events The events that have been processed
+     */
+    public void eventsProcessed(java.util.List<java.io.Serializable> events);
     
 }

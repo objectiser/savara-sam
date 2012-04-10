@@ -17,10 +17,18 @@
  */
 package org.savara.bam.epn;
 
+import java.util.logging.Logger;
+
+import org.savara.bam.epn.internal.EventList;
+
 
 public abstract class AbstractEPNManager implements EPNManager {
 
+    private static final Logger LOG=Logger.getLogger(AbstractEPNManager.class.getName());
+    
     private java.util.Map<String, Network> _networkMap=new java.util.HashMap<String, Network>();
+    private java.util.Map<Node, java.util.List<NodeListener>> _nodeListeners=
+                        new java.util.HashMap<Node, java.util.List<NodeListener>>();
     
     protected abstract EPNContext getContext();
     
@@ -32,6 +40,62 @@ public abstract class AbstractEPNManager implements EPNManager {
 
     public void unregister(String networkName) throws Exception {
         _networkMap.remove(networkName);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean addNodeListener(String networkName, String nodeName, NodeListener l) {
+        boolean ret=false;
+        
+        try {
+            synchronized(_nodeListeners) {
+                Node node=getNode(networkName, nodeName);
+            
+                if (node != null) {
+                    java.util.List<NodeListener> nl=_nodeListeners.get(node);
+                    
+                    if (nl == null) {
+                        nl = new java.util.Vector<NodeListener>();
+                        _nodeListeners.put(node, nl);
+                    }
+                    
+                    nl.add(l);
+                    
+                    ret = true;
+                }
+            }
+        } catch(Exception e) {
+            LOG.fine("Failed to add node listener: "+e);
+        }
+        
+        return (ret);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void removeNodeListener(String networkName, String nodeName, NodeListener l) {
+
+        try {
+            synchronized(_nodeListeners) {
+                Node node=getNode(networkName, nodeName);
+            
+                if (node != null) {
+                    java.util.List<NodeListener> nl=_nodeListeners.get(node);
+                    
+                    if (nl != null) {
+                        nl.remove(l);
+                        
+                        if (nl.size() == 0) {
+                            _nodeListeners.remove(node);
+                        }
+                    }
+                }
+            }
+        } catch(Exception e) {
+            LOG.fine("Failed to add node listener: "+e);
+        }
     }
     
     protected Network getNetwork(String name) {
@@ -67,9 +131,40 @@ public abstract class AbstractEPNManager implements EPNManager {
      */
     protected EventList process(Node node, String source, EventList events,
                             int retriesLeft) throws Exception {
-        return(node.process(getContext(), source, events, retriesLeft));
+        EventList ret=node.process(getContext(), source, events, retriesLeft);
+        
+        // Notify any interested listeners of the events that were processed
+        java.util.List<NodeListener> l=_nodeListeners.get(node);
+        
+        if (l != null) {
+            EventList notify=null;
+            
+            if (ret != null) {
+                EventList processed = new EventList();
+                
+                for (java.io.Serializable event : events) {
+                    if (!ret.contains(event)) {
+                        processed.add(event);
+                    }
+                }
+                
+                if (processed.size() > 0) {
+                    notify = processed;
+                }
+            } else {
+                notify = events;
+            }
+            
+            if (notify != null) {
+                for (NodeListener nl : l) {
+                    nl.eventsProcessed(notify);
+                }
+            }
+        }
+        
+        return (ret);
     }
-
+    
     public void close() throws Exception {
     }
 

@@ -19,7 +19,7 @@ package org.savara.bam.epn.jms;
 
 import org.savara.bam.epn.Channel;
 import org.savara.bam.epn.Destination;
-import org.savara.bam.epn.EventList;
+import org.savara.bam.epn.internal.EventList;
 
 /**
  * This class represents a JMS implementation of the event destination

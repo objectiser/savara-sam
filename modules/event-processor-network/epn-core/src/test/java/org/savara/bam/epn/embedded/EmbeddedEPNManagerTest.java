@@ -21,18 +21,20 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.savara.bam.epn.Destination;
-import org.savara.bam.epn.EventList;
 import org.savara.bam.epn.Network;
 import org.savara.bam.epn.Node;
+import org.savara.bam.epn.internal.EventList;
 import org.savara.bam.epn.testdata.TestEvent1;
 import org.savara.bam.epn.testdata.TestEvent2;
 import org.savara.bam.epn.testdata.TestEventProcessorA;
 import org.savara.bam.epn.testdata.TestEventProcessorB;
+import org.savara.bam.epn.testdata.TestEventProcessorC;
 import org.savara.bam.epn.testdata.TestPredicate1;
 import org.savara.bam.epn.testdata.TestPredicate2;
 
 public class EmbeddedEPNManagerTest {
 
+    private static final int MAX_RETRIES = 4;
     private static final String N1 = "N1";
     private static final String N2 = "N2";
     private static final String TEST_NETWORK = "TestNetwork";
@@ -90,4 +92,47 @@ public class EmbeddedEPNManagerTest {
         }
     }
 
+    @Test
+    public void testEventRetries() {
+        Network net=new Network();
+        net.setName(TEST_NETWORK);
+        net.setRootNodeName(N1);
+        net.setTimestamp(0);
+        
+        Node n1=new Node();
+        n1.setPredicate(new TestPredicate1());
+        n1.setEventProcessor(new TestEventProcessorB());
+        n1.getDestinations().add(new Destination(TEST_NETWORK, N2));
+        net.getNodes().put(N1, n1);
+        
+        Node n2=new Node();
+        n2.setPredicate(new TestPredicate2());
+        n2.setMaxRetries(MAX_RETRIES);
+        
+        TestEventProcessorC tea=new TestEventProcessorC();
+        n2.setEventProcessor(tea);
+        net.getNodes().put(N2, n2);
+        
+        EmbeddedEPNManager mgr=new EmbeddedEPNManager();
+        
+        try {
+            mgr.register(net);
+            
+            EventList events=new EventList();
+            
+            TestEvent1 te1=new TestEvent1(25);
+            events.add(te1);
+            
+            mgr.enqueue(TEST_NETWORK, events);
+            
+            // Need to delay awaiting processing via other threads
+            Thread.sleep(1000);
+            
+            if (tea._retryCount != MAX_RETRIES+1) {
+                fail("Expecting "+(MAX_RETRIES+1)+" retries: "+tea._retryCount);
+            }
+        } catch(Exception e) {
+            fail("Test failed: "+e);
+        }
+    }
 }

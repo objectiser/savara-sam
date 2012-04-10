@@ -20,6 +20,8 @@ package org.savara.bam.epn;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.savara.bam.epn.internal.EventList;
+
 /**
  * This class represents a node in the Event Processor Network.
  *

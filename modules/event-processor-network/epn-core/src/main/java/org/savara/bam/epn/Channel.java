@@ -17,6 +17,8 @@
  */
 package org.savara.bam.epn;
 
+import org.savara.bam.epn.internal.EventList;
+
 /**
  * This interface provides the channel through which a
  * set of events will be sent to another destination.

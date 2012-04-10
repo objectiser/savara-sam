@@ -27,9 +27,9 @@ import org.savara.bam.epn.AbstractEPNManager;
 import org.savara.bam.epn.Channel;
 import org.savara.bam.epn.Destination;
 import org.savara.bam.epn.EPNContext;
-import org.savara.bam.epn.EventList;
 import org.savara.bam.epn.Network;
 import org.savara.bam.epn.Node;
+import org.savara.bam.epn.internal.EventList;
 
 /**
  * This class provides the embedded implementation of
@@ -65,14 +65,14 @@ public class EmbeddedEPNManager extends AbstractEPNManager {
         _entryPoints.remove(networkName);
     }
 
-    public void enqueue(String network, EventList events) throws Exception {
+    public void enqueue(String network, java.util.List<java.io.Serializable> events) throws Exception {
         Channel channel=_entryPoints.get(network);
         
         if (channel == null) {
             throw new Exception("No channel for network '"+network+"'");
         }
         
-        channel.send(events);
+        channel.send(new EventList(events));
     }
 
     public void close() throws Exception {

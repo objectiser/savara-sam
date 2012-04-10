@@ -39,9 +39,9 @@ import org.savara.bam.epn.AbstractEPNManager;
 import org.savara.bam.epn.Channel;
 import org.savara.bam.epn.EPNContext;
 import org.savara.bam.epn.EPNManager;
-import org.savara.bam.epn.EventList;
 import org.savara.bam.epn.Network;
 import org.savara.bam.epn.Node;
+import org.savara.bam.epn.internal.EventList;
 
 /**
  * This class provides the JMS implementation of
@@ -93,14 +93,14 @@ public class JMSEPNManager extends AbstractEPNManager implements javax.jms.Messa
         _networkChannels.remove(networkName);
     }
     
-    public void enqueue(String network, EventList events) throws Exception {
+    public void enqueue(String network, java.util.List<java.io.Serializable> events) throws Exception {
         JMSChannel channel=_networkChannels.get(network);
         
         if (channel == null) {
             throw new Exception("Unable to find channel for network '"+network+"'");
         }
         
-        channel.send(events);
+        channel.send(new EventList(events));
     }
 
     public void onMessage(Message message) {

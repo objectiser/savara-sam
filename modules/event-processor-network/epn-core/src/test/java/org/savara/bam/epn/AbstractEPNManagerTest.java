@@ -20,7 +20,11 @@ package org.savara.bam.epn;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.savara.bam.epn.internal.EventList;
+import org.savara.bam.epn.testdata.TestEvent1;
+import org.savara.bam.epn.testdata.TestEvent2;
 import org.savara.bam.epn.testdata.TestEventProcessorA;
+import org.savara.bam.epn.testdata.TestNodeListener;
 
 public class AbstractEPNManagerTest {
 
@@ -29,26 +33,32 @@ public class AbstractEPNManagerTest {
     private static final String N3 = "N3";
     private static final String TEST_NETWORK = "TestNetwork";
 
+    protected AbstractEPNManager getManager() {
+        return(new AbstractEPNManager() {
+            
+            public void enqueue(String network,
+                    java.util.List<java.io.Serializable> events) throws Exception {
+            }
+            
+            public EPNContext getContext() {
+                return null;
+            }
+        });
+    }
+    
     @Test
     public void testRegisterNetworkIncorrectRootNodeName() {
         Network net=new Network();
         net.setName(TEST_NETWORK);
+        
+        // Root should be incorrect, to test exception
         net.setRootNodeName(N2);
         
         Node n1=new Node();
         n1.setEventProcessor(new TestEventProcessorA());
         net.getNodes().put(N1, n1);
         
-        AbstractEPNManager mgr=new AbstractEPNManager() {
-            
-            public void enqueue(String network,
-                    EventList events) throws Exception {
-            }
-            
-            public EPNContext getContext() {
-                return null;
-            }
-        };
+        AbstractEPNManager mgr=getManager();
         
         try {
             mgr.register(net);
@@ -67,16 +77,7 @@ public class AbstractEPNManagerTest {
         Node n1=new Node();
         net.getNodes().put(N1, n1);
         
-        AbstractEPNManager mgr=new AbstractEPNManager() {
-            
-            public void enqueue(String network,
-                    EventList events) throws Exception {
-            }
-            
-            public EPNContext getContext() {
-                return null;
-            }
-        };
+        AbstractEPNManager mgr=getManager();
         
         try {
             mgr.register(net);
@@ -104,16 +105,7 @@ public class AbstractEPNManagerTest {
         n3.setEventProcessor(new TestEventProcessorA());
         net.getNodes().put("N3", n3);
         
-        AbstractEPNManager mgr=new AbstractEPNManager() {
-            
-            public void enqueue(String network,
-                    EventList events) throws Exception {
-            }
-            
-            public EPNContext getContext() {
-                return null;
-            }
-        };
+        AbstractEPNManager mgr=getManager();
         
         try {
             mgr.register(net);
@@ -137,6 +129,93 @@ public class AbstractEPNManagerTest {
             }
         } catch(Exception e) {
             fail("Failed to find node");
+        }
+    }
+
+    @Test
+    public void testRegisterNodeListener() {
+        Network net=new Network();
+        net.setName(TEST_NETWORK);
+        net.setRootNodeName(N1);
+        
+        TestEventProcessorA tep=new TestEventProcessorA();
+        
+        Node n1=new Node();
+        n1.setEventProcessor(tep);
+        net.getNodes().put(N1, n1);
+        
+        AbstractEPNManager mgr=getManager();
+        
+        try {
+            mgr.register(net);
+            
+            TestNodeListener nl=new TestNodeListener();
+            
+            if (!mgr.addNodeListener(TEST_NETWORK, N1, nl)) {
+                fail("Failed to add node listener");
+            }
+            
+            TestEvent1 te1=new TestEvent1(2);
+            TestEvent2 te2=new TestEvent2(5);
+            
+            EventList el=new EventList();
+            el.add(te1);
+            el.add(te2);
+            
+            tep.retry(te2);
+            
+            EventList retries=mgr.process(n1, null, el, 3);
+            
+            if (retries == null) {
+                fail("Retries is null");
+            }
+            
+            if (retries.size() != 1) {
+                fail("Retries should have 1 event: "+retries.size());
+            }
+            
+            if (!retries.contains(te2)) {
+                fail("Retries did not contain te2");
+            }
+            
+            if (nl.getEvents().size() != 1) {
+                fail("Node listener should have 1 event: "+nl.getEvents().size());
+            }
+            
+            if (!nl.getEvents().contains(te1)) {
+                fail("Event te1 should have been processed");
+            }
+            
+        } catch(Exception e) {
+            fail("Failed with exception: "+e);
+        }
+    }
+
+    @Test
+    public void testRegisterNodeListenerMissingNode() {
+        Network net=new Network();
+        net.setName(TEST_NETWORK);
+        net.setRootNodeName(N1);
+        
+        TestEventProcessorA tep=new TestEventProcessorA();
+        
+        Node n1=new Node();
+        n1.setEventProcessor(tep);
+        net.getNodes().put(N1, n1);
+        
+        AbstractEPNManager mgr=getManager();
+        
+        try {
+            mgr.register(net);
+            
+            TestNodeListener nl=new TestNodeListener();
+            
+            if (mgr.addNodeListener(TEST_NETWORK, "n2", nl)) {
+                fail("Should have failed to add node listener");
+            }
+            
+        } catch(Exception e) {
+            fail("Failed with exception: "+e);
         }
     }
 

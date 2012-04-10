@@ -18,27 +18,19 @@
 package org.savara.bam.epn.testdata;
 
 import java.io.Serializable;
+import java.util.List;
 
-import org.savara.bam.epn.Channel;
-import org.savara.bam.epn.internal.EventList;
+import org.savara.bam.epn.NodeListener;
 
-public class TestChannel implements Channel {
+public class TestNodeListener implements NodeListener {
+
+    private java.util.List<Serializable> _events=new java.util.Vector<Serializable>();
     
-    private java.util.List<Serializable> _events=new java.util.Vector<Serializable>();        
+    public void eventsProcessed(List<Serializable> events) {
+        _events.addAll(events);
+    }
 
     public java.util.List<Serializable> getEvents() {
-        return(_events);
+        return (_events);
     }
-
-    public void send(EventList events) throws Exception {
-        _events.addAll(events);
-    }
-
-    public void send(EventList events, int retriesLeft) throws Exception {
-        _events.addAll(events);
-    }
-
-    public void close() throws Exception {
-    }
-    
 }

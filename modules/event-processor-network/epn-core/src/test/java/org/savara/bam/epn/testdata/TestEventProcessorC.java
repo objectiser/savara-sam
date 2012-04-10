@@ -15,28 +15,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.savara.bam.epn;
+package org.savara.bam.epn.testdata;
+
+import org.savara.bam.epn.EventProcessor;
 
 /**
- * This class represents a list of events that can be serialized.
+ * This test event processor throws exceptions when processing event, and
+ * counts the number of retries.
  *
- * @param <T> The event type
  */
-public class EventList extends java.util.Vector<java.io.Serializable> {
+public class TestEventProcessorC extends EventProcessor {
+    
+    public int _retryCount=0;
 
-    private static final long serialVersionUID = -2940973962085558684L;
-
-    /**
-     * This method represents the default constructor.
-     */
-    public EventList() {
+    public java.io.Serializable process(String source, java.io.Serializable event, int retriesLeft) throws Exception {
+        _retryCount++;
+        throw new Exception("Failed to process event");
     }
 
-    /**
-     * This method represents a constructor to initialize the event list
-     * from a standard Java list.
-     */
-    public EventList(java.util.List<? extends java.io.Serializable> list) {
-        super(list);
-    }
 }

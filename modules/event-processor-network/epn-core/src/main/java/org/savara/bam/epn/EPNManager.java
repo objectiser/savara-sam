@@ -41,6 +41,29 @@ public interface EPNManager {
     public void unregister(String networkName) throws Exception;
     
     /**
+     * This method registers a node listener associated with
+     * a specified network and node name. If the specified
+     * node does not exist, then the listener will not be
+     * added - as indicated by the return result.
+     * 
+     * @param network The network name
+     * @param node The node name
+     * @param l The listener
+     * @return Whether the listener was added
+     */
+    public boolean addNodeListener(String network, String node, NodeListener l);
+    
+    /**
+     * This method unregisters a node listener associated with
+     * a specified network and node name.
+     * 
+     * @param network The network name
+     * @param node The node name
+     * @param l The listener
+     */
+    public void removeNodeListener(String network, String node, NodeListener l);
+    
+    /**
      * This method queues up the supplied events to be processed
      * by the specified network.
      * 
@@ -49,7 +72,7 @@ public interface EPNManager {
      * @throws Exception Failed to enqueue the events
      */
     public void enqueue(String network,
-                        EventList events) throws Exception;
+                 java.util.List<java.io.Serializable> events) throws Exception;
     
     /**
      * This method closes the manager.

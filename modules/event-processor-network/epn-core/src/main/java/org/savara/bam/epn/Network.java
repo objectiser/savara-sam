@@ -17,6 +17,8 @@
  */
 package org.savara.bam.epn;
 
+import org.savara.bam.epn.internal.EventList;
+
 /**
  * This class represents an Event Processor Network.
  *

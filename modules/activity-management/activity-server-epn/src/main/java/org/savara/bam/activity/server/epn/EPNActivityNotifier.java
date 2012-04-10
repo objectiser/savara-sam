@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import org.savara.bam.activity.model.Activity;
 import org.savara.bam.activity.server.spi.ActivityNotifier;
 import org.savara.bam.epn.EPNManager;
-import org.savara.bam.epn.EventList;
+import org.savara.bam.epn.internal.EventList;
 
 /**
  * This class provides a bridge between the Activity Server, where

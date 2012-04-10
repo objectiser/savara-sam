@@ -20,6 +20,7 @@ package org.savara.bam.epn;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.savara.bam.epn.internal.EventList;
 import org.savara.bam.epn.testdata.TestChannel;
 import org.savara.bam.epn.testdata.TestEPNContext;
 import org.savara.bam.epn.testdata.TestEvent1;

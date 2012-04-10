@@ -15,30 +15,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.savara.bam.epn.testdata;
+package org.savara.bam.epn.internal;
 
-import java.io.Serializable;
+/**
+ * This class represents a list of events that can be serialized.
+ *
+ * @param <T> The event type
+ */
+public class EventList extends java.util.Vector<java.io.Serializable> {
 
-import org.savara.bam.epn.Channel;
-import org.savara.bam.epn.internal.EventList;
+    private static final long serialVersionUID = -2940973962085558684L;
 
-public class TestChannel implements Channel {
-    
-    private java.util.List<Serializable> _events=new java.util.Vector<Serializable>();        
-
-    public java.util.List<Serializable> getEvents() {
-        return(_events);
+    /**
+     * This method represents the default constructor.
+     */
+    public EventList() {
     }
 
-    public void send(EventList events) throws Exception {
-        _events.addAll(events);
+    /**
+     * This method represents a constructor to initialize the event list
+     * from a standard Java list.
+     */
+    public EventList(java.util.List<? extends java.io.Serializable> list) {
+        super(list);
     }
-
-    public void send(EventList events, int retriesLeft) throws Exception {
-        _events.addAll(events);
-    }
-
-    public void close() throws Exception {
-    }
-    
 }
